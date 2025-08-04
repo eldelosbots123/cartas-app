@@ -6,192 +6,188 @@ const destinatarioInput = document.getElementById('destinatario');
 const enviarBtn = document.getElementById('enviarBtn');
 const confirmacion = document.getElementById('confirmacion');
 const misCartitasDiv = document.getElementById('misCartitas');
-const buzonDiv = document.getElementById('buzonCartitas');
-const sobreAnimacion = document.getElementById('sobreAnimacion');
+const buzonCartitasDiv = document.getElementById('buzonCartitas');
 const listaConectados = document.getElementById('listaConectados');
+const sobreAnimacion = document.getElementById('sobreAnimacion');
 
-// --- Storage Keys ---
-const STORAGE_USUARIO = 'cartas_usuario';
-const STORAGE_CARTAS = 'cartas_enviadas';
-const STORAGE_BUZON = 'cartas_buzon';
-const STORAGE_NICK_CHANGE = 'cartas_nick_change';
-const STORAGE_CORAZONES = 'cartas_corazones';
+let nombreUsuario = localStorage.getItem('nombreUsuario') || '';
+let ultimoCambioNombre = localStorage.getItem('ultimoCambioNombre') || '0';
 
-// --- Estado ---
-let usuario = null;
-let cartasEnviadas = [];
-let cartasBuzon = [];
-let corazonesDados = {};
-let usuariosConectados = [];  // VACÍO para que sea real
+let cartasEnviadas = JSON.parse(localStorage.getItem('cartasEnviadas')) || [];
+let cartasRecibidas = JSON.parse(localStorage.getItem('cartasRecibidas')) || [];
+let usuariosConectados = ['@ConejoOlimpico', '@MatematicoMisterioso', '@GeometriaFan']; // simulación
 
-// --- Helpers ---
-function generarID() {
-  return 'carta_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+// --- Funciones ---
+
+// Mostrar usuarios conectados
+function mostrarUsuariosConectados() {
+  listaConectados.innerHTML = '';
+  usuariosConectados.forEach(u => {
+    const li = document.createElement('li');
+    li.textContent = u;
+    listaConectados.appendChild(li);
+  });
 }
 
-function cargarJSON(key) {
-  const data = localStorage.getItem(key);
-  return data ? JSON.parse(data) : null;
+// Guardar nombre usuario y validar cambio cada 7 días
+function validarYGuardarNombre() {
+  const ahora = Date.now();
+  const limiteCambio = parseInt(ultimoCambioNombre) + 7 * 24 * 3600 * 1000;
+
+  if (nombreInput.value.trim() === '') {
+    msgCambioNombre.textContent = 'El nombre no puede estar vacío.';
+    enviarBtn.disabled = true;
+    return false;
+  }
+  if (nombreInput.value.trim().length > 20) {
+    msgCambioNombre.textContent = 'Nombre demasiado largo.';
+    enviarBtn.disabled = true;
+    return false;
+  }
+
+  if (ahora < limiteCambio && nombreInput.value.trim() !== nombreUsuario) {
+    const diasRestantes = Math.ceil((limiteCambio - ahora) / (24 * 3600 * 1000));
+    msgCambioNombre.textContent = `Puedes cambiar tu nombre en ${diasRestantes} día(s).`;
+    enviarBtn.disabled = true;
+    return false;
+  }
+
+  // Si todo bien, guardar y actualizar
+  nombreUsuario = nombreInput.value.trim();
+  localStorage.setItem('nombreUsuario', nombreUsuario);
+  localStorage.setItem('ultimoCambioNombre', ahora.toString());
+  ultimoCambioNombre = ahora.toString();
+  msgCambioNombre.textContent = 'Nombre guardado con éxito!';
+  enviarBtn.disabled = false;
+  mostrarMisCartitas();
+  mostrarCartasBuzon();
+  return true;
 }
 
-function guardarJSON(key, data) {
-  localStorage.setItem(key, JSON.stringify(data));
-}
-
-function puedeCambiarNombre() {
-  const lastChangeStr = localStorage.getItem(STORAGE_NICK_CHANGE);
-  if (!lastChangeStr) return true;
-  const diffDias = (new Date() - new Date(lastChangeStr)) / (1000 * 60 * 60 * 24);
-  return diffDias >= 7;
-}
-
-function guardarFechaCambioNombre() {
-  localStorage.setItem(STORAGE_NICK_CHANGE, new Date().toISOString());
-}
-
-function validarInputs() {
-  enviarBtn.disabled = !(mensajeInput.value.trim().length > 3 && nombreInput.value.trim().length > 0);
-}
-
-function mostrarHistorial() {
-  misCartitasDiv.innerHTML = cartasEnviadas.length === 0 ? '' : cartasEnviadas.map(carta =>
-    `<div class="cartita">
-      <p>${carta.texto}</p>
-      <div class="footer"><span>ID: ${carta.id}</span><span>Para: ${carta.destinatario || 'Todos'}</span></div>
-    </div>`
-  ).join('');
-}
-
-function mostrarBuzon() {
-  buzonDiv.innerHTML = '';
-  cartasBuzon.forEach(carta => {
+// Mostrar cartas enviadas
+function mostrarMisCartitas() {
+  misCartitasDiv.innerHTML = '';
+  if (cartasEnviadas.length === 0) {
+    misCartitasDiv.innerHTML = '<p>No enviaste cartas aún.</p>';
+    return;
+  }
+  cartasEnviadas.forEach((carta, idx) => {
     const div = document.createElement('div');
     div.className = 'cartita';
     div.innerHTML = `
-      <p>${carta.texto}</p>
+      <div>${carta.texto}</div>
       <div class="footer">
-        <span>De: ${carta.autor}</span>
-        <button class="corazon" data-id="${carta.id}" title="Dale corazón ❤️">${corazonesDados[carta.id] ? '❤️' : '♡'}</button>
+        <small>Para: ${carta.destinatario}</small>
+        <small>❤️ ${carta.likes || 0}</small>
       </div>
     `;
-    buzonDiv.appendChild(div);
-  });
-
-  buzonDiv.querySelectorAll('.corazon').forEach(btn => {
-    const cartaId = btn.getAttribute('data-id');
-    if (corazonesDados[cartaId]) {
-      btn.disabled = true;
-      btn.style.cursor = 'default';
-    }
-    btn.onclick = () => {
-      if (!corazonesDados[cartaId]) {
-        corazonesDados[cartaId] = true;
-        guardarJSON(STORAGE_CORAZONES, corazonesDados);
-        mostrarBuzon();
-      }
-    };
+    misCartitasDiv.appendChild(div);
   });
 }
 
-function mostrarUsuarios() {
-  listaConectados.innerHTML = usuariosConectados.length === 0
-    ? '<li>No hay usuarios conectados</li>'
-    : usuariosConectados.map(u => `<li>${u}</li>`).join('');
+// Mostrar cartas recibidas en el buzón
+function mostrarCartasBuzon() {
+  buzonCartitasDiv.innerHTML = '';
+  if (cartasRecibidas.length === 0) {
+    buzonCartitasDiv.innerHTML = '<p>No hay cartas en tu buzón.</p>';
+    return;
+  }
+  cartasRecibidas.forEach((carta, idx) => {
+    const div = document.createElement('div');
+    div.className = 'cartita';
+    div.innerHTML = `
+      <div>${carta.texto}</div>
+      <div class="footer">
+        <small>De: ${carta.remitente}</small>
+        <small>❤️ ${carta.likes || 0}</small>
+        <button class="corazon" aria-label="Me gusta carta">❤️</button>
+      </div>
+    `;
+    buzonCartitasDiv.appendChild(div);
+
+    // Listener para like
+    const likeBtn = div.querySelector('.corazon');
+    likeBtn.addEventListener('click', () => {
+      carta.likes = (carta.likes || 0) + 1;
+      mostrarCartasBuzon();
+      // Aquí podrías agregar persistencia
+    });
+  });
 }
 
-// --- Eventos ---
-sobreAnimacion.addEventListener('click', () => {
-  sobreAnimacion.classList.toggle('abierto');
-});
+// Validar inputs para habilitar botón enviar
+function validarInputs() {
+  const textoValido = mensajeInput.value.trim().length > 0;
+  const destinatarioValido = destinatarioInput.value.trim().length > 0;
+  enviarBtn.disabled = !(textoValido && destinatarioValido && nombreUsuario.length > 0);
+}
 
-nombreInput.addEventListener('input', () => {
-  if (!puedeCambiarNombre()) {
-    msgCambioNombre.textContent = 'Solo podés cambiar tu nombre una vez cada 7 días.';
-    if (usuario) nombreInput.value = usuario.nick;
-  } else {
-    msgCambioNombre.textContent = '';
-  }
-  validarInputs();
-});
+// Enviar carta
+function enviarCarta() {
+  if (!validarYGuardarNombre()) return;
 
-nombreInput.addEventListener('blur', () => {
-  const nuevoNick = nombreInput.value.trim();
-  if (nuevoNick.length === 0) {
-    msgCambioNombre.textContent = 'El nombre no puede estar vacío.';
-    if (usuario) nombreInput.value = usuario.nick;
-    return;
-  }
-  if (usuario && nuevoNick === usuario.nick) return;
-  if (!puedeCambiarNombre()) {
-    msgCambioNombre.textContent = 'Solo podés cambiar tu nombre una vez cada 7 días.';
-    if (usuario) nombreInput.value = usuario.nick;
-    return;
-  }
-  usuario.nick = nuevoNick;
-  guardarJSON(STORAGE_USUARIO, usuario);
-  guardarFechaCambioNombre();
-  msgCambioNombre.textContent = 'Nombre guardado. Podrás cambiarlo en 7 días.';
-  mostrarUsuarios();
-  validarInputs();
-});
-
-mensajeInput.addEventListener('input', validarInputs);
-
-enviarBtn.addEventListener('click', () => {
   const texto = mensajeInput.value.trim();
-  const destinatarioRaw = destinatarioInput.value.trim();
-  const destinatario = destinatarioRaw.startsWith('@') ? destinatarioRaw.substring(1) : '';
+  const destinatario = destinatarioInput.value.trim();
 
-  if (!usuario) {
-    confirmacion.textContent = '';
-    return;
-  }
-  if (texto.length < 3) {
-    confirmacion.textContent = '';
-    return;
-  }
-
+  // Simular envío: agregar a cartas enviadas y cartas recibidas
   const carta = {
-    id: generarID(),
     texto,
-    autor: usuario.nick,
-    destinatario: destinatario || '',
-    fecha: new Date().toISOString(),
+    destinatario,
+    remitente: nombreUsuario,
+    likes: 0,
+    fecha: new Date().toISOString()
   };
 
   cartasEnviadas.push(carta);
-  guardarJSON(STORAGE_CARTAS, cartasEnviadas);
-  mostrarHistorial();
+  // Simulamos que el destinatario recibe la carta (solo si destinatario es distinto del remitente)
+  if (destinatario !== nombreUsuario) cartasRecibidas.push(carta);
 
-  if (destinatario && destinatario !== usuario.nick) {
-    confirmacion.textContent = '';
-  } else {
-    cartasBuzon.push(carta);
-    guardarJSON(STORAGE_BUZON, cartasBuzon);
-    mostrarBuzon();
-    confirmacion.textContent = '';
-  }
+  // Guardar en localStorage
+  localStorage.setItem('cartasEnviadas', JSON.stringify(cartasEnviadas));
+  localStorage.setItem('cartasRecibidas', JSON.stringify(cartasRecibidas));
 
   mensajeInput.value = '';
   destinatarioInput.value = '';
   enviarBtn.disabled = true;
-});
+  confirmacion.textContent = 'Carta enviada con éxito 🥳';
 
-// --- Inicialización ---
-function init() {
-  usuario = cargarJSON(STORAGE_USUARIO);
-  cartasEnviadas = cargarJSON(STORAGE_CARTAS) || [];
-  cartasBuzon = cargarJSON(STORAGE_BUZON) || [];
-  corazonesDados = cargarJSON(STORAGE_CORAZONES) || {};
+  mostrarMisCartitas();
+  mostrarCartasBuzon();
 
-  if (usuario) nombreInput.value = usuario.nick;
-
-  mostrarHistorial();
-  mostrarBuzon();
-  mostrarUsuarios();
-  validarInputs();
-
-  msgCambioNombre.textContent = puedeCambiarNombre() ? '' : 'Solo podés cambiar tu nombre una vez cada 7 días.';
+  // Animación sobre
+  animarSobre();
 }
 
-init();
+// Animación del sobre
+function animarSobre() {
+  sobreAnimacion.classList.add('abierto');
+  setTimeout(() => {
+    sobreAnimacion.classList.remove('abierto');
+  }, 1200);
+}
+
+// --- Eventos ---
+
+// Cargar datos iniciales
+window.addEventListener('load', () => {
+  nombreInput.value = nombreUsuario;
+  validarYGuardarNombre();
+  mostrarUsuariosConectados();
+  mostrarMisCartitas();
+  mostrarCartasBuzon();
+  validarInputs();
+});
+
+// Validar inputs y habilitar botón
+mensajeInput.addEventListener('input', validarInputs);
+destinatarioInput.addEventListener('input', validarInputs);
+nombreInput.addEventListener('change', validarYGuardarNombre);
+
+// Enviar carta al click
+enviarBtn.addEventListener('click', enviarCarta);
+
+// Animar sobre al click
+sobreAnimacion.addEventListener('click', () => {
+  animarSobre();
+});
+
