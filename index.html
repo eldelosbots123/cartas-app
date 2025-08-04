@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Pacifico&display=swap" rel="stylesheet" />
   
   <style>
-    /* Igual que antes */
     body {
       font-family: 'Poppins', sans-serif;
       background: #e6e0f8;
@@ -141,18 +140,23 @@
     .back-link:hover, .back-link:focus {
       text-decoration: underline;
     }
-    #easterEggImg {
+    /* Easter egg style */
+    #easterEggLink {
       position: fixed;
       bottom: 12px;
       right: 12px;
+      z-index: 9999;
+      display: none;
+      cursor: pointer;
+    }
+    #easterEggImg {
       width: 120px;
       border-radius: 12px;
       box-shadow: 0 4px 14px rgba(106,75,154,0.3);
-      display: none;
-      z-index: 9999;
       user-select: none;
-      pointer-events: none;
+      pointer-events: auto;
       background: transparent;
+      display: block;
     }
   </style>
 </head>
@@ -173,7 +177,9 @@
     <div class="qr" id="qr"></div>
   </div>
 
-  <img id="easterEggImg" src="cele.png" alt="Cele está aquí" />
+  <a id="easterEggLink" href="https://www.instagram.com/dice.cele_sketch/" target="_blank" rel="noopener noreferrer" aria-label="Ir al Instagram de Cele">
+    <img id="easterEggImg" src="cele.png" alt="Cele está aquí" />
+  </a>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
@@ -190,7 +196,7 @@
     const output = document.getElementById('output');
     const link = document.getElementById('link');
     const qrContainer = document.getElementById('qr');
-    const easterEggImg = document.getElementById('easterEggImg');
+    const easterEggLink = document.getElementById('easterEggLink');
 
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -204,7 +210,7 @@
         return;
       }
 
-      easterEggImg.style.display = 'none';
+      easterEggLink.style.display = 'none';
 
       const encoded = encodeDedication({ to, message, from });
       const url = `${window.location.origin}${window.location.pathname}?d=${encoded}`;
@@ -231,15 +237,17 @@
             <p class="signature">— ${data.from || 'Anónimo'}</p>
             <a href="/" class="back-link" aria-label="Volver para escribir tu propia dedicatoria">Escribe tu propia dedicatoria</a>
           </div>
-          <img id="easterEggImg" src="cele.png" alt="Cele está aquí" />
+          <a id="easterEggLink" href="https://www.instagram.com/dice.cele_sketch/" target="_blank" rel="noopener noreferrer" aria-label="Ir al Instagram de Cele" style="position: fixed; bottom: 12px; right: 12px; z-index: 9999; display: none;">
+            <img id="easterEggImg" src="cele.png" alt="Cele está aquí" style="width: 120px; border-radius: 12px; box-shadow: 0 4px 14px rgba(106,75,154,0.3); user-select: none; pointer-events: auto;" />
+          </a>
         `;
 
-        const easterEggImgPage = document.getElementById('easterEggImg');
+        const easterEggLinkPage = document.getElementById('easterEggLink');
 
         if ((data.from || '').toLowerCase().includes('cele estuvo aqui')) {
-          easterEggImgPage.style.display = 'block';
+          easterEggLinkPage.style.display = 'block';
         } else {
-          easterEggImgPage.style.display = 'none';
+          easterEggLinkPage.style.display = 'none';
         }
 
       } catch {
