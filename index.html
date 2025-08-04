@@ -109,7 +109,6 @@
       gap: 12px;
       position: relative;
     }
-    /* Gato animado al lado del QR */
     .qr-gato {
       width: 40px;
       height: 40px;
@@ -148,9 +147,9 @@
     }
     .message {
       margin-bottom: 1.5rem;
-      white-space: pre-wrap;       /* <-- AÑADIDO para que baje texto largo */
-      word-wrap: break-word;       /* <-- AÑADIDO para que no se salga del cuadro */
-      overflow-wrap: break-word;   /* <-- AÑADIDO para más compatibilidad */
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
     .signature {
       font-weight: 600;
@@ -169,7 +168,6 @@
     .back-link:hover, .back-link:focus {
       text-decoration: underline;
     }
-    /* Easter egg logo cele solo en la dedicatoria cuando la firma incluye 'cele' */
     .cele-easteregg {
       position: absolute;
       bottom: 12px;
@@ -184,7 +182,6 @@
     .cele-easteregg:hover {
       transform: scale(1.2) rotate(10deg);
     }
-    /* Feedback mensaje */
     #feedbackMsg {
       position: fixed;
       top: 20px;
@@ -207,7 +204,6 @@
       opacity: 1;
       pointer-events: auto;
     }
-    /* Mejor responsive */
     @media (max-width: 480px) {
       body {
         padding: 0.5rem 1rem;
@@ -259,30 +255,26 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
-    // Genera un ID corto random (6 chars alfanum)
-    function generateId() {
-      return Math.random().toString(36).substring(2, 8);
-    }
-
+    // Escape HTML para seguridad
     function escapeHTML(text) {
       const p = document.createElement('p');
       p.textContent = text;
       return p.innerHTML;
     }
 
-    // Guardamos dedicatoria en localStorage (simulando DB local)
-    function saveDedication(data) {
-      const id = generateId();
-      const saved = JSON.parse(localStorage.getItem('dedications') || '{}');
-      saved[id] = data;
-      localStorage.setItem('dedications', JSON.stringify(saved));
-      return id;
+    // Encode y decode Base64 URL Safe
+    function base64UrlEncode(str) {
+      return btoa(unescape(encodeURIComponent(str)))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
     }
-
-    // Cargar dedicatoria por ID
-    function loadDedication(id) {
-      const saved = JSON.parse(localStorage.getItem('dedications') || '{}');
-      return saved[id];
+    function base64UrlDecode(str) {
+      str = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (str.length % 4) {
+        str += '=';
+      }
+      return decodeURIComponent(escape(atob(str)));
     }
 
     const form = document.getElementById('dedicationForm');
@@ -291,14 +283,12 @@
     const qrContainer = document.getElementById('qr');
     const feedbackMsg = document.getElementById('feedbackMsg');
 
-    // Mostrar feedback temporal
     function showFeedback(msg) {
       feedbackMsg.textContent = msg;
       feedbackMsg.classList.add('show');
       setTimeout(() => feedbackMsg.classList.remove('show'), 2500);
     }
 
-    // Al enviar el formulario
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -311,10 +301,12 @@
         return;
       }
 
-      const data = { to, message, from };
-      const id = saveDedication(data);
+      const dataObj = { to, message, from };
+      const jsonStr = JSON.stringify(dataObj);
+      const encoded = base64UrlEncode(jsonStr);
 
-      const url = `${location.origin}${location.pathname}?id=${id}`;
+      // Armar URL con parámetro
+      const url = `${location.origin}${location.pathname}?d=${encoded}`;
 
       // Mostrar enlace
       link.href = url;
@@ -323,10 +315,10 @@
       // Limpiar QR previo
       qrContainer.innerHTML = '';
 
-      // Generar QR personalizado con colores
+      // Generar QR personalizado
       QRCode.toCanvas(url, { 
         width: 160, 
-        color: { dark: '#4b367c', light: '#d9cffb' } // colores combinados con fondo y texto
+        color: { dark: '#4b367c', light: '#d9cffb' } 
       }, function (error, canvas) {
         if (error) {
           showFeedback('Error al generar el código QR');
@@ -334,7 +326,6 @@
         }
         qrContainer.appendChild(canvas);
 
-        // Agregamos gato animado junto al QR
         const gato = document.createElement('div');
         gato.className = 'qr-gato';
         qrContainer.appendChild(gato);
@@ -345,55 +336,54 @@
       showFeedback('Dedicatoria generada, compártela con cariño 💜');
     });
 
-    // Si viene id en URL, mostramos la dedicatoria
-    function showDedicationFromId(id) {
-      const data = loadDedication(id);
-      if (!data) return;
+    // Mostrar dedicatoria si está en URL
+    function showDedicationFromEncoded(encoded) {
+      try {
+        const jsonStr = base64UrlDecode(encoded);
+        const data = JSON.parse(jsonStr);
 
-      const container = document.createElement('div');
-      container.className = 'dedication-container';
+        const container = document.createElement('div');
+        container.className = 'dedication-container';
 
-      // Si 'to' está, lo mostramos
-      let titleHTML = '';
-      if (data.to) titleHTML = `<h1>Para ${escapeHTML(data.to)}</h1>`;
+        let titleHTML = '';
+        if (data.to) titleHTML = `<h1>Para ${escapeHTML(data.to)}</h1>`;
 
-      // Mensaje y firma
-      const messageHTML = `<p class="message">${escapeHTML(data.message)}</p>`;
-      const signatureHTML = data.from ? `<p class="signature">— ${escapeHTML(data.from)}</p>` : '';
+        const messageHTML = `<p class="message">${escapeHTML(data.message)}</p>`;
+        const signatureHTML = data.from ? `<p class="signature">— ${escapeHTML(data.from)}</p>` : '';
 
-      container.innerHTML = titleHTML + messageHTML + signatureHTML;
+        container.innerHTML = titleHTML + messageHTML + signatureHTML;
 
-      // Easter egg si firma contiene 'cele' (insensible a mayúsculas)
-      if (data.from && /cele/i.test(data.from)) {
-        const easterEgg = document.createElement('img');
-        easterEgg.src = 'gatito.png';
-        easterEgg.alt = 'Logo Cele';
-        easterEgg.className = 'cele-easteregg';
-        easterEgg.title = 'Easter Egg: ¡Hola, Cele!';
-        container.appendChild(easterEgg);
+        if (data.from && /cele/i.test(data.from)) {
+          const easterEgg = document.createElement('img');
+          easterEgg.src = 'gatito.png';
+          easterEgg.alt = 'Logo Cele';
+          easterEgg.className = 'cele-easteregg';
+          easterEgg.title = 'Easter Egg: ¡Hola, Cele!';
+          container.appendChild(easterEgg);
+        }
+
+        document.body.innerHTML = '';
+        document.body.appendChild(container);
+
+        const backLink = document.createElement('a');
+        backLink.href = location.pathname;
+        backLink.textContent = '← Volver';
+        backLink.className = 'back-link';
+        document.body.appendChild(backLink);
+      } catch {
+        // Si decode falla, mostrar formulario normal
       }
-
-      // Remplazamos contenido body por la dedicatoria
-      document.body.innerHTML = '';
-      document.body.appendChild(container);
-
-      // Agregamos link para volver
-      const backLink = document.createElement('a');
-      backLink.href = location.pathname;
-      backLink.textContent = '← Volver';
-      backLink.className = 'back-link';
-      document.body.appendChild(backLink);
     }
 
-    // Al cargar, verificamos si hay id en URL
     const params = new URLSearchParams(location.search);
-    const id = params.get('id');
-    if (id) {
-      showDedicationFromId(id);
+    const encodedData = params.get('d');
+    if (encodedData) {
+      showDedicationFromEncoded(encodedData);
     }
   </script>
 </body>
 </html>
+
 
 
 
