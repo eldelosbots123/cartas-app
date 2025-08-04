@@ -5,183 +5,141 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Te lo diría, pero…</title>
   
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Pacifico&display=swap" rel="stylesheet" />
   
   <style>
-    :root {
-      --lila-oscuro: #6a4b9a;
-      --lila-claro: #bfa2db;
-      --lila-muy-claro: #f3ebff;
-      --texto-principal: #3a1c5a;
-      --rosa: #d16ca3;
-      --rosa-oscuro: #a4486e;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-    
     body {
-      margin: 0;
       font-family: 'Poppins', sans-serif;
-      background: var(--lila-muy-claro);
-      color: var(--texto-principal);
+      background: #e6e0f8;
+      color: #4b367c;
+      margin: 0; padding: 1rem;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 2rem 1rem;
     }
-    
     h1 {
       font-family: 'Pacifico', cursive;
-      font-size: 2.8rem;
-      margin-bottom: 0.3rem;
-      color: var(--lila-oscuro);
-      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 0.25rem;
+      color: #7c59c9;
     }
-
-    p.subtitle {
-      color: var(--lila-oscuro);
-      font-size: 1.1rem;
+    .subtitle {
+      margin-top: 0;
       margin-bottom: 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #6d5cae;
       text-align: center;
-      max-width: 320px;
+      max-width: 420px;
     }
-    
     form {
-      background: white;
-      padding: 2rem;
+      background: #d9cffb;
+      padding: 1.5rem 2rem;
       border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(106, 75, 154, 0.2);
+      box-shadow: 0 6px 16px rgba(106,75,154,0.25);
       max-width: 420px;
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 1.2rem;
+      gap: 1rem;
     }
-
     input[type="text"], textarea {
-      font-size: 1rem;
-      padding: 0.9rem 1rem;
-      border-radius: 8px;
-      border: 1.8px solid var(--lila-claro);
-      transition: border-color 0.3s ease;
       font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      padding: 0.75rem 1rem;
+      border: 2px solid #9b80e5;
+      border-radius: 8px;
+      outline-offset: 2px;
+      transition: border-color 0.3s ease;
+      resize: vertical;
+      background: #f5f0ff;
+      color: #4b367c;
     }
     input[type="text"]:focus, textarea:focus {
-      border-color: var(--lila-oscuro);
-      outline: none;
+      border-color: #7c59c9;
+      background: #e9e3ff;
     }
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-    
     button {
-      background: var(--lila-oscuro);
+      background: #7c59c9;
       color: white;
       font-weight: 600;
       font-size: 1.1rem;
-      padding: 0.9rem;
+      padding: 0.75rem;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      box-shadow: 0 5px 15px rgba(106, 75, 154, 0.3);
-    }
-    button:hover {
-      background: var(--rosa);
-      box-shadow: 0 8px 20px rgba(209, 108, 163, 0.5);
-    }
-
-    .output {
-      margin-top: 2.8rem;
-      background: white;
-      padding: 1.8rem;
       border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 5px 10px rgba(124,89,201,0.6);
+      transition: background-color 0.3s ease;
+    }
+    button:hover, button:focus {
+      background: #a18be7;
+      outline: none;
+      box-shadow: 0 0 8px 3px #a18be7;
+    }
+    .output {
+      margin-top: 2rem;
+      background: #d9cffb;
+      padding: 1.5rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(106,75,154,0.25);
       max-width: 420px;
-      box-shadow: 0 5px 15px rgba(106, 75, 154, 0.15);
+      width: 100%;
       text-align: center;
+      word-break: break-word;
     }
-
-    .output h2 {
-      color: var(--lila-oscuro);
-      margin-bottom: 1rem;
-    }
-
     .output a {
-      color: var(--rosa-oscuro);
+      color: #4b367c;
       font-weight: 600;
-      word-break: break-all;
-      display: block;
-      margin-bottom: 1rem;
       text-decoration: none;
-      font-size: 1.1rem;
     }
-
-    .output a:hover {
+    .output a:hover, .output a:focus {
       text-decoration: underline;
     }
-
-    .qr canvas {
-      margin: 0 auto;
-      display: block;
-      max-width: 180px;
-      width: 100%;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(106, 75, 154, 0.2);
+    .qr {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: center;
     }
-
-    /* Página de dedicatoria */
     .dedication-container {
-      background: white;
+      background: #d9cffb;
+      padding: 2rem;
+      border-radius: 16px;
       max-width: 480px;
-      margin: 3rem auto 2rem;
-      border-radius: 14px;
-      padding: 2rem 2.4rem;
-      box-shadow: 0 7px 22px rgba(106, 75, 154, 0.25);
-      text-align: center;
-      font-size: 1.2rem;
+      box-shadow: 0 6px 16px rgba(106,75,154,0.3);
+      color: #4b367c;
+      font-size: 1.15rem;
       line-height: 1.5;
-      font-family: 'Poppins', sans-serif;
-      color: var(--texto-principal);
+      user-select: text;
     }
     .dedication-container h1 {
       font-family: 'Pacifico', cursive;
-      font-size: 2.5rem;
-      color: var(--lila-oscuro);
+      font-size: 2.2rem;
       margin-bottom: 1rem;
+      color: #7c59c9;
+      text-align: center;
     }
-    .dedication-container p.message {
+    .message {
+      margin-bottom: 1.5rem;
       white-space: pre-wrap;
-      margin-bottom: 2rem;
-      font-size: 1.15rem;
     }
-    .dedication-container p.signature {
-      font-style: italic;
-      color: var(--rosa-oscuro);
-      margin-bottom: 2rem;
-      font-size: 1.1rem;
-    }
-    .dedication-container a.back-link {
-      color: var(--lila-oscuro);
+    .signature {
       font-weight: 600;
-      font-size: 1.1rem;
+      text-align: right;
+      font-style: italic;
+    }
+    .back-link {
+      display: block;
+      margin-top: 2rem;
+      color: #6d5cae;
+      font-weight: 600;
+      text-align: center;
       text-decoration: none;
-      border: 2px solid var(--lila-oscuro);
-      padding: 0.4rem 1.2rem;
-      border-radius: 8px;
-      transition: background-color 0.3s ease, color 0.3s ease;
-      display: inline-block;
+      font-size: 1rem;
     }
-    .dedication-container a.back-link:hover {
-      background-color: var(--lila-oscuro);
-      color: white;
+    .back-link:hover, .back-link:focus {
+      text-decoration: underline;
     }
-
-    /* Easter egg image */
     #easterEggImg {
       position: fixed;
       bottom: 12px;
@@ -193,20 +151,7 @@
       z-index: 9999;
       user-select: none;
       pointer-events: none;
-    }
-
-    /* Responsive */
-    @media (max-width: 480px) {
-      body {
-        padding: 1.5rem 1rem;
-      }
-      form, .output, .dedication-container {
-        width: 100%;
-        padding: 1.5rem;
-      }
-      h1 {
-        font-size: 2.2rem;
-      }
+      background: transparent;
     }
   </style>
 </head>
@@ -231,7 +176,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
-    // Encode & Decode Base64 para evitar URLs enormes
     function encodeDedication(data) {
       const json = JSON.stringify(data);
       return btoa(unescape(encodeURIComponent(json)));
@@ -259,12 +203,8 @@
         return;
       }
 
-      // Mostrar easter egg si el mensaje contiene la frase mágica exacta (ignorando mayúsculas)
-      if (message.toLowerCase() === 'cele estuvo aqui') {
-        easterEggImg.style.display = 'block';
-      } else {
-        easterEggImg.style.display = 'none';
-      }
+      // No mostramos easter egg en el formulario, solo en la dedicatoria final
+      easterEggImg.style.display = 'none';
 
       const encoded = encodeDedication({ to, message, from });
       const url = `${window.location.origin}${window.location.pathname}?d=${encoded}`;
@@ -296,7 +236,9 @@
         `;
 
         const easterEggImgPage = document.getElementById('easterEggImg');
-        if ((data.message || '').toLowerCase() === 'cele estuvo aqui') {
+
+        // Mostrar easter egg solo si la firma contiene "cele estuvo aqui"
+        if ((data.from || '').toLowerCase().includes('cele estuvo aqui')) {
           easterEggImgPage.style.display = 'block';
         } else {
           easterEggImgPage.style.display = 'none';
