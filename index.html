@@ -1,217 +1,306 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chat con bloqueo de nombre y usuarios</title>
-<style>
-  body { font-family: Arial, sans-serif; margin: 20px; }
-  #usuarios { margin-bottom: 10px; }
-  #chat { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto; margin-bottom: 10px; }
-  #mensaje { width: 80%; }
-  #nombre { width: 200px; }
-  .bloqueado { color: red; font-weight: bold; }
-  .usuario-conectado { color: green; margin-right: 5px; }
-  .mencion { color: blue; font-weight: bold; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Carta para Conejo Olimpico</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Caveat&display=swap');
+    body {
+      font-family: 'Caveat', cursive;
+      background: #ff8ac1;
+      margin: 0; padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      color: #333;
+    }
+    header {
+      background-color: #ff69b4;
+      width: 100%;
+      padding: 1rem;
+      color: white;
+      font-weight: bold;
+      font-size: 2rem;
+      text-align: center;
+    }
+    #perfil {
+      background: #fff0f6;
+      padding: 1rem 2rem;
+      border-radius: 15px;
+      margin: 1rem 0;
+      box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
+      max-width: 400px;
+      width: 90%;
+    }
+    #perfil input, #perfil textarea {
+      font-family: 'Caveat', cursive;
+      font-size: 1.4rem;
+      width: 100%;
+      padding: 0.3rem 0.6rem;
+      margin-bottom: 0.5rem;
+      border: 2px solid #ff69b4;
+      border-radius: 12px;
+      resize: none;
+    }
+    #perfil textarea {
+      height: 8rem;
+    }
+    #btnBloquearNombre {
+      background-color: #ffa3d7;
+      border: none;
+      padding: 0.3rem 0.7rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-bottom: 0.7rem;
+    }
+    #btnBloquearNombre:hover {
+      background-color: #ff69b4;
+      color: white;
+    }
+    #enviarCarta {
+      background-color: #ff69b4;
+      color: white;
+      font-size: 1.5rem;
+      border: none;
+      border-radius: 15px;
+      padding: 0.5rem 1.2rem;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    #enviarCarta:disabled {
+      background-color: #ffb6c1;
+      cursor: not-allowed;
+    }
+    #cartas, #usuarios {
+      background: white;
+      max-width: 600px;
+      width: 90%;
+      margin-bottom: 2rem;
+      border-radius: 15px;
+      padding: 1rem;
+      box-shadow: 0 0 20px rgba(255, 105, 180, 0.4);
+    }
+    .carta {
+      border: 2px solid #ff69b4;
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+      white-space: pre-wrap;
+    }
+    #msg-cambio-nombre {
+      font-size: 0.85rem;
+      color: #a12c62;
+      min-height: 1.2rem;
+      margin-bottom: 0.4rem;
+    }
+  </style>
 </head>
 <body>
 
-<h2>Chat Simulado - Conejo Olímpico style 🐰🥇</h2>
+<header>Carta para Conejo Olimpico 🐇🏅</header>
 
-<label>Tu nombre: 
-  <input id="nombre" type="text" />
-</label>
-<button id="btnCambiarNombre">Cambiar nombre</button>
-<button id="btnBloquearNombre">Bloquear nombre por 7 días</button>
-<span id="mensajeBloqueo" class="bloqueado"></span>
+<section id="perfil">
+  <label for="nombreUsuario">Tu nombre (cambios cada 7 días):</label>
+  <input type="text" id="nombreUsuario" placeholder="Poné tu nombre" maxlength="20" />
+  <button id="btnBloquearNombre" type="button">🔒 Bloquear nombre</button>
+  <small id="msg-cambio-nombre"></small>
 
-<div>
-  <h4>Usuarios conectados (simulado):</h4>
-  <div id="usuarios"></div>
-</div>
+  <label for="destinatario">Destinatario:</label>
+  <input type="text" id="destinatario" placeholder="¿Para quién es esta carta?" maxlength="30" />
 
-<div id="chat"></div>
+  <label for="mensaje">Mensaje:</label>
+  <textarea id="mensaje" placeholder="Escribí tu carta aquí..."></textarea>
 
-<input id="mensaje" type="text" placeholder="Escribe tu mensaje aquí... Usa @usuario para mencionar." />
-<button id="btnEnviar">Enviar</button>
+  <button id="enviarCarta" disabled>Enviar carta 📝</button>
+</section>
+
+<section id="cartas">
+  <h2>Cartas enviadas</h2>
+  <div id="listaCartas"></div>
+</section>
+
+<section id="usuarios">
+  <h2>Usuarios conectados</h2>
+  <ul id="usuariosConectadosList"></ul>
+</section>
 
 <script>
-(() => {
-  const nombreInput = document.getElementById('nombre');
-  const btnCambiarNombre = document.getElementById('btnCambiarNombre');
-  const btnBloquearNombre = document.getElementById('btnBloquearNombre');
-  const mensajeBloqueo = document.getElementById('mensajeBloqueo');
-  const usuariosDiv = document.getElementById('usuarios');
-  const chatDiv = document.getElementById('chat');
+  const nombreInput = document.getElementById('nombreUsuario');
+  const destinatarioInput = document.getElementById('destinatario');
   const mensajeInput = document.getElementById('mensaje');
-  const btnEnviar = document.getElementById('btnEnviar');
+  const enviarBtn = document.getElementById('enviarCarta');
+  const listaCartas = document.getElementById('listaCartas');
+  const msgCambioNombre = document.getElementById('msg-cambio-nombre');
+  const btnBloquearNombre = document.getElementById('btnBloquearNombre');
+  const usuariosList = document.getElementById('usuariosConectadosList');
 
-  // Simulación de usuarios conectados (localStorage)
-  // Para simular múltiples usuarios, se usarán keys con timestamps y nombres en localStorage
+  const LS_NOMBRE = 'nombreUsuario';
+  const LS_FECHA_CAMBIO = 'fechaCambioNombre';
+  const LS_USUARIOS_CONECTADOS = 'usuariosConectados';
+  const LS_CARTAS = 'cartas';
 
-  // --- Manejo del nombre y bloqueo ---
-  const NOMBRE_KEY = 'chatNombreUsuario';
-  const FECHA_CAMBIO_KEY = 'chatFechaCambioNombre';
-  const BLOQUEO_KEY = 'chatNombreBloqueado';
+  let nombreBloqueado = localStorage.getItem('nombreBloqueado') === 'true';
+  const idUsuario = crypto.randomUUID();
 
   function cargarNombre() {
-    let nombre = localStorage.getItem(NOMBRE_KEY) || '';
+    const nombre = localStorage.getItem(LS_NOMBRE) || '';
+    const fechaCambioStr = localStorage.getItem(LS_FECHA_CAMBIO);
+    if (!fechaCambioStr) {
+      localStorage.setItem(LS_FECHA_CAMBIO, new Date().toISOString());
+    } else {
+      const fechaCambio = new Date(fechaCambioStr);
+      const hoy = new Date();
+      const diff = Math.floor((hoy - fechaCambio) / (1000 * 60 * 60 * 24));
+      if (diff >= 7) {
+        nombreBloqueado = false;
+        localStorage.setItem('nombreBloqueado', 'false');
+      }
+    }
     nombreInput.value = nombre;
   }
 
-  function puedeCambiarNombre() {
-    const bloqueo = localStorage.getItem(BLOQUEO_KEY);
-    if (bloqueo === 'true') return false;
-
-    const fechaStr = localStorage.getItem(FECHA_CAMBIO_KEY);
-    if (!fechaStr) return true;
-
-    const fechaCambio = new Date(fechaStr);
-    const ahora = new Date();
-    const diffDias = (ahora - fechaCambio) / (1000 * 60 * 60 * 24);
-    return diffDias >= 7;
+  function validarYGuardarNombre() {
+    const nombre = nombreInput.value.trim();
+    if (!nombre) {
+      msgCambioNombre.textContent = 'El nombre no puede estar vacío.';
+      return false;
+    }
+    if (nombreBloqueado) {
+      msgCambioNombre.textContent = 'El nombre está bloqueado.';
+      return false;
+    }
+    const fechaCambioStr = localStorage.getItem(LS_FECHA_CAMBIO);
+    if (fechaCambioStr) {
+      const fechaCambio = new Date(fechaCambioStr);
+      const hoy = new Date();
+      const diff = Math.floor((hoy - fechaCambio) / (1000 * 60 * 60 * 24));
+      if (diff < 7) {
+        msgCambioNombre.textContent = `Esperá ${7 - diff} día(s) para cambiar el nombre.`;
+        nombreInput.value = localStorage.getItem(LS_NOMBRE) || '';
+        return false;
+      }
+    }
+    localStorage.setItem(LS_NOMBRE, nombre);
+    localStorage.setItem(LS_FECHA_CAMBIO, new Date().toISOString());
+    msgCambioNombre.textContent = '';
+    return true;
   }
 
-  function actualizarMensajeBloqueo() {
-    if (!puedeCambiarNombre()) {
-      mensajeBloqueo.textContent = 'Tu nombre está bloqueado para cambiar por 7 días.';
-      nombreInput.disabled = true;
-      btnCambiarNombre.disabled = true;
-      btnBloquearNombre.disabled = true;
+  function validarInputs() {
+    const valido = mensajeInput.value.trim() && destinatarioInput.value.trim() && nombreInput.value.trim();
+    enviarBtn.disabled = nombreBloqueado || !valido;
+  }
+
+  function actualizarEstadoBloqueo() {
+    nombreInput.disabled = nombreBloqueado;
+    enviarBtn.disabled = nombreBloqueado || !validarInputsParaBoton();
+    btnBloquearNombre.textContent = nombreBloqueado ? '🔓 Desbloquear nombre' : '🔒 Bloquear nombre';
+  }
+
+  function validarInputsParaBoton() {
+    return mensajeInput.value.trim() && destinatarioInput.value.trim() && nombreInput.value.trim();
+  }
+
+  function guardarCarta(destinatario, remitente, mensaje) {
+    const cartas = JSON.parse(localStorage.getItem(LS_CARTAS) || '[]');
+    cartas.unshift({ destinatario, remitente, mensaje });
+    localStorage.setItem(LS_CARTAS, JSON.stringify(cartas));
+  }
+
+  function cargarCartas() {
+    const cartas = JSON.parse(localStorage.getItem(LS_CARTAS) || '[]');
+    const miNombre = localStorage.getItem(LS_NOMBRE);
+    listaCartas.innerHTML = '';
+    if (cartas.length === 0) {
+      listaCartas.textContent = 'No hay cartas enviadas todavía.';
+      return;
+    }
+    cartas.forEach(carta => {
+      if (carta.destinatario === '@' + miNombre || !carta.destinatario.startsWith('@')) {
+        const div = document.createElement('div');
+        div.className = 'carta';
+        div.textContent = `Para: ${carta.destinatario}\nDe: ${carta.remitente}\n\n${carta.mensaje}`;
+        listaCartas.appendChild(div);
+      }
+    });
+  }
+
+  function conectarUsuario(nombre) {
+    if (!nombre) return;
+    const ahora = Date.now();
+    let usuarios = JSON.parse(localStorage.getItem(LS_USUARIOS_CONECTADOS) || '[]');
+    usuarios = usuarios.filter(u => ahora - u.timestamp < 300000);
+    const ya = usuarios.find(u => u.id === idUsuario);
+    if (ya) {
+      ya.timestamp = ahora;
+      ya.nombre = nombre;
     } else {
-      mensajeBloqueo.textContent = '';
-      nombreInput.disabled = false;
-      btnCambiarNombre.disabled = false;
-      btnBloquearNombre.disabled = false;
+      usuarios.push({ id: idUsuario, nombre, timestamp: ahora });
     }
+    localStorage.setItem(LS_USUARIOS_CONECTADOS, JSON.stringify(usuarios));
+    mostrarUsuarios(usuarios);
   }
 
-  btnCambiarNombre.addEventListener('click', () => {
-    if (!puedeCambiarNombre()) {
-      alert('No puedes cambiar tu nombre hasta que pasen 7 días.');
-      return;
+  function mostrarUsuarios(lista) {
+    usuariosList.innerHTML = '';
+    lista.forEach(u => {
+      const li = document.createElement('li');
+      li.textContent = u.nombre;
+      usuariosList.appendChild(li);
+    });
+  }
+
+  // Eventos
+  nombreInput.addEventListener('change', () => {
+    if (!nombreBloqueado) {
+      validarYGuardarNombre();
+      validarInputs();
+    } else {
+      msgCambioNombre.textContent = 'El nombre está bloqueado.';
+      nombreInput.value = localStorage.getItem(LS_NOMBRE) || '';
     }
-    const nuevoNombre = nombreInput.value.trim();
-    if (!nuevoNombre) {
-      alert('El nombre no puede estar vacío.');
-      return;
-    }
-    localStorage.setItem(NOMBRE_KEY, nuevoNombre);
-    localStorage.setItem(FECHA_CAMBIO_KEY, new Date().toISOString());
-    localStorage.setItem(BLOQUEO_KEY, 'false');
-    alert('Nombre cambiado a: ' + nuevoNombre);
-    actualizarMensajeBloqueo();
-    registrarUsuarioConectado(nuevoNombre);
   });
+
+  destinatarioInput.addEventListener('input', validarInputs);
+  mensajeInput.addEventListener('input', validarInputs);
 
   btnBloquearNombre.addEventListener('click', () => {
-    localStorage.setItem(BLOQUEO_KEY, 'true');
-    actualizarMensajeBloqueo();
-    alert('Has bloqueado tu nombre por 7 días. No podrás cambiarlo hasta que desbloquees.');
+    nombreBloqueado = !nombreBloqueado;
+    localStorage.setItem('nombreBloqueado', nombreBloqueado.toString());
+    actualizarEstadoBloqueo();
   });
 
-  // --- Manejo usuarios conectados simulado ---
-  // Al cargar la página, registra usuario actual
-  // Y muestra la lista (desde localStorage)
-
-  const USUARIOS_KEY = 'chatUsuariosConectados';
-
-  function obtenerUsuarios() {
-    const json = localStorage.getItem(USUARIOS_KEY);
-    if (!json) return [];
-    return JSON.parse(json);
-  }
-
-  function guardarUsuarios(usuarios) {
-    localStorage.setItem(USUARIOS_KEY, JSON.stringify(usuarios));
-  }
-
-  // Para simular usuario conectado, guardamos su nombre y timestamp (última actividad)
-  function registrarUsuarioConectado(nombre) {
-    if (!nombre) return;
-    let usuarios = obtenerUsuarios();
-    // Actualiza si ya está
-    const ahora = Date.now();
-    const index = usuarios.findIndex(u => u.nombre === nombre);
-    if (index >= 0) {
-      usuarios[index].ultimoActivo = ahora;
-    } else {
-      usuarios.push({ nombre, ultimoActivo: ahora });
-    }
-    guardarUsuarios(usuarios);
-    mostrarUsuarios();
-  }
-
-  // Limpiar usuarios inactivos > 1 min (simulación)
-  function limpiarUsuariosInactivos() {
-    let usuarios = obtenerUsuarios();
-    const ahora = Date.now();
-    usuarios = usuarios.filter(u => ahora - u.ultimoActivo < 60 * 1000);
-    guardarUsuarios(usuarios);
-    mostrarUsuarios();
-  }
-
-  function mostrarUsuarios() {
-    const usuarios = obtenerUsuarios();
-    usuariosDiv.innerHTML = '';
-    usuarios.forEach(u => {
-      const span = document.createElement('span');
-      span.textContent = u.nombre;
-      span.classList.add('usuario-conectado');
-      usuariosDiv.appendChild(span);
-    });
-  }
-
-  // Cada 20 segundos limpiar usuarios inactivos (simulación)
-  setInterval(() => {
-    limpiarUsuariosInactivos();
-  }, 20000);
-
-  // Al cargar la página, registrar usuario actual
-  cargarNombre();
-  actualizarMensajeBloqueo();
-  registrarUsuarioConectado(nombreInput.value.trim());
-
-  // Actualiza el registro de usuario cuando cambia nombre (al menos al escribir)
-  nombreInput.addEventListener('input', () => {
-    registrarUsuarioConectado(nombreInput.value.trim());
-  });
-
-  // --- Chat básico con @usuario ---
-  function crearMensajeHTML(nombre, texto) {
-    // Reemplaza @usuario por span azul
-    const textoHTML = texto.replace(/@(\w+)/g, (match, p1) => {
-      return `<span class="mencion">@${p1}</span>`;
-    });
-    return `<b>${nombre}:</b> ${textoHTML}`;
-  }
-
-  btnEnviar.addEventListener('click', () => {
-    const nombre = localStorage.getItem(NOMBRE_KEY) || 'Anónimo';
-    const texto = mensajeInput.value.trim();
-    if (!texto) return alert('Escribe un mensaje.');
-
-    // Mostrar mensaje
-    const mensajeHTML = crearMensajeHTML(nombre, texto);
-    const div = document.createElement('div');
-    div.innerHTML = mensajeHTML;
-    chatDiv.appendChild(div);
-    chatDiv.scrollTop = chatDiv.scrollHeight;
+  enviarBtn.addEventListener('click', () => {
+    if (enviarBtn.disabled) return;
+    const remitente = nombreInput.value.trim();
+    const destinatario = destinatarioInput.value.trim();
+    const mensaje = mensajeInput.value.trim();
+    guardarCarta(destinatario, remitente, mensaje);
+    destinatarioInput.value = '';
     mensajeInput.value = '';
+    enviarBtn.disabled = true;
+    cargarCartas();
   });
 
-  // Optional: Enter key to send
-  mensajeInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      btnEnviar.click();
-    }
-  });
+  setInterval(() => {
+    const nombre = localStorage.getItem(LS_NOMBRE);
+    if (nombre) conectarUsuario(nombre);
+  }, 30000);
 
-})();
+  window.addEventListener('load', () => {
+    cargarNombre();
+    actualizarEstadoBloqueo();
+    cargarCartas();
+    validarInputs();
+    const nombre = localStorage.getItem(LS_NOMBRE);
+    if (nombre) conectarUsuario(nombre);
+  });
 </script>
 
 </body>
 </html>
-
-
