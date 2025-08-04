@@ -137,7 +137,8 @@
       line-height: 1.5;
       user-select: text;
       position: relative;
-      min-height: 220px;
+      height: auto;
+      max-height: none;
     }
     .dedication-container h1 {
       font-family: 'Pacifico', cursive;
@@ -149,6 +150,8 @@
     .message {
       margin-bottom: 1.5rem;
       white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
     .signature {
       font-weight: 600;
@@ -253,156 +256,69 @@
     <div class="qr" id="qr"></div>
   </div>
 
-  <div id="feedbackMsg" role="alert" aria-live="assertive"></div>
+  <div id="feedbackMsg" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
-    // Genera un ID corto random (6 chars alfanum)
-    function generateId() {
-      return Math.random().toString(36).substring(2, 8);
-    }
-
-    function escapeHTML(text) {
-      const p = document.createElement('p');
-      p.textContent = text;
-      return p.innerHTML;
-    }
-
-    // Guardamos dedicatoria en localStorage (simulando DB local)
-    function saveDedication(data) {
-      const id = generateId();
-      const saved = JSON.parse(localStorage.getItem('dedications') || '{}');
-      saved[id] = data;
-      localStorage.setItem('dedications', JSON.stringify(saved));
-      return id;
-    }
-
-    // Cargar dedicatoria por ID
-    function loadDedication(id) {
-      const saved = JSON.parse(localStorage.getItem('dedications') || '{}');
-      return saved[id];
-    }
-
     const form = document.getElementById('dedicationForm');
     const output = document.getElementById('output');
     const link = document.getElementById('link');
     const qrContainer = document.getElementById('qr');
     const feedbackMsg = document.getElementById('feedbackMsg');
 
-    // Mostrar feedback temporal
-    function showFeedback(msg) {
-      feedbackMsg.textContent = msg;
-      feedbackMsg.classList.add('show');
-      setTimeout(() => feedbackMsg.classList.remove('show'), 2500);
-    }
-
-    // Al enviar el formulario
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async e => {
       e.preventDefault();
 
-      const to = form.to.value.trim();
-      const message = form.message.value.trim();
-      const from = form.from.value.trim();
+      const to = document.getElementById('to').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const from = document.getElementById('from').value.trim();
 
       if (!message) {
-        alert('Por favor, escribe un mensaje.');
+        showFeedback('Por favor, escribe un mensaje');
         return;
       }
 
-      const data = { to, message, from };
-      const id = saveDedication(data);
+      // Codificar datos en URL (puedes ajustar aquí el destino)
+      const params = new URLSearchParams();
+      if (to) params.append('to', to);
+      params.append('message', message);
+      if (from) params.append('from', from);
 
-      // URL corto con ?id=xxx
-      const url = `${window.location.origin}${window.location.pathname}?id=${id}`;
+      // URL base - para prueba local, sería el mismo archivo con ?query, o un endpoint real
+      const baseUrl = window.location.origin + window.location.pathname + 'dedication.html';
 
-      // Mostrar link
+      const url = baseUrl + '?' + params.toString();
+
+      // Mostrar enlace
       link.href = url;
       link.textContent = url;
 
-      // Generar QR con URL corto
+      // Generar QR con colores personalizados
       qrContainer.innerHTML = '';
-      QRCode.toCanvas(url, { width: 160 }, function (error, canvas) {
+      QRCode.toCanvas(url, { 
+        width: 160, 
+        color: { dark: '#4b367c', light: '#d9cffb' } 
+      }, function (error, canvas) {
         if (error) {
-          console.error(error);
-          qrContainer.textContent = 'Error generando QR';
+          showFeedback('Error al generar el código QR');
           return;
         }
         qrContainer.appendChild(canvas);
-
-        // Agregar el gato animado al lado del QR
-        const gato = document.createElement('div');
-        gato.className = 'qr-gato';
-        qrContainer.appendChild(gato);
       });
 
       output.style.display = 'block';
-
-      showFeedback('¡Tu dedicatoria está lista! 🎉');
     });
 
-    // Mostrar dedicatoria en pantalla si se abre con ?id=...
-    function showDedicationFromId(id) {
-      const data = loadDedication(id);
-      if (!data) return false;
-
-      const container = document.createElement('div');
-      container.className = 'dedication-container';
-
-      let title = 'Dedicatoria';
-      if (data.to) title = `Para ${escapeHTML(data.to)}`;
-
-      container.innerHTML = `
-        <h1>${title}</h1>
-        <div class="message">${escapeHTML(data.message)}</div>
-        <div class="signature">${data.from ? '- ' + escapeHTML(data.from) : ''}</div>
-      `;
-
-      // Solo si la firma contiene "cele" mostrar el logo cele en bottom right
-      if (data.from && data.from.toLowerCase().includes('cele')) {
-        const logo = document.createElement('a');
-        logo.href = "https://www.instagram.com/cele/";
-        logo.target = "_blank";
-        logo.rel = "noopener noreferrer";
-        logo.className = 'cele-easteregg';
-        logo.setAttribute('aria-label', 'Ir al Instagram de Cele');
-        const img = document.createElement('img');
-        img.src = 'cele.png';
-        img.alt = 'Logo de Cele';
-        img.style.width = '100%';
-        img.style.height = 'auto';
-        logo.appendChild(img);
-        container.appendChild(logo);
-      }
-
-      // Limpiar todo y mostrar solo la dedicatoria
-      document.body.innerHTML = '';
-      document.body.appendChild(container);
-
-      // Botón para volver atrás (recarga la página)
-      const back = document.createElement('a');
-      back.href = window.location.origin + window.location.pathname;
-      back.textContent = '← Volver';
-      back.className = 'back-link';
-      back.setAttribute('aria-label', 'Volver a crear dedicatoria');
-      container.appendChild(back);
-
-      return true;
+    function showFeedback(msg) {
+      feedbackMsg.textContent = msg;
+      feedbackMsg.classList.add('show');
+      setTimeout(() => {
+        feedbackMsg.classList.remove('show');
+      }, 3500);
     }
-
-    // Al cargar la página
-    window.addEventListener('load', () => {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get('id');
-      if (id) {
-        const shown = showDedicationFromId(id);
-        if (!shown) {
-          alert('Dedicatoria no encontrada o ha expirado.');
-          window.history.replaceState({}, '', window.location.pathname);
-        }
-      }
-    });
   </script>
 </body>
 </html>
+
 
 
