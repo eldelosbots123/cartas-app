@@ -181,6 +181,20 @@
       color: white;
     }
 
+    /* Easter egg image */
+    #easterEggImg {
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      width: 120px;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(106,75,154,0.3);
+      display: none;
+      z-index: 9999;
+      user-select: none;
+      pointer-events: none;
+    }
+
     /* Responsive */
     @media (max-width: 480px) {
       body {
@@ -213,12 +227,25 @@
     <div class="qr" id="qr"></div>
   </div>
 
+  <img id="easterEggImg" src="cele.png" alt="Cele está aquí" />
+
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
+    // Encode & Decode Base64 para evitar URLs enormes
+    function encodeDedication(data) {
+      const json = JSON.stringify(data);
+      return btoa(unescape(encodeURIComponent(json)));
+    }
+
+    function decodeDedication(b64) {
+      return JSON.parse(decodeURIComponent(escape(atob(b64))));
+    }
+
     const form = document.getElementById('dedicationForm');
     const output = document.getElementById('output');
     const link = document.getElementById('link');
     const qrContainer = document.getElementById('qr');
+    const easterEggImg = document.getElementById('easterEggImg');
 
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -232,7 +259,14 @@
         return;
       }
 
-      const encoded = encodeURIComponent(JSON.stringify({ to, message, from }));
+      // Mostrar easter egg si el mensaje contiene la frase mágica exacta (ignorando mayúsculas)
+      if (message.toLowerCase() === 'cele estuvo aqui') {
+        easterEggImg.style.display = 'block';
+      } else {
+        easterEggImg.style.display = 'none';
+      }
+
+      const encoded = encodeDedication({ to, message, from });
       const url = `${window.location.origin}${window.location.pathname}?d=${encoded}`;
 
       link.href = url;
@@ -248,18 +282,34 @@
     // Mostrar dedicatoria si viene por URL
     const params = new URLSearchParams(window.location.search);
     if (params.has('d')) {
-      const data = JSON.parse(decodeURIComponent(params.get('d')));
-      document.body.innerHTML = `
-        <div class="dedication-container" role="main">
-          <h1>💌 Para: ${data.to || 'Alguien especial'}</h1>
-          <p class="message">${data.message}</p>
-          <p class="signature">— ${data.from || 'Anónimo'}</p>
-          <a href="/" class="back-link" aria-label="Volver para escribir tu propia dedicatoria">Escribe tu propia dedicatoria</a>
-        </div>
-      `;
+      try {
+        const data = decodeDedication(params.get('d'));
+        
+        document.body.innerHTML = `
+          <div class="dedication-container" role="main" tabindex="0">
+            <h1>💌 Para: ${data.to || 'Alguien especial'}</h1>
+            <p class="message">${data.message}</p>
+            <p class="signature">— ${data.from || 'Anónimo'}</p>
+            <a href="/" class="back-link" aria-label="Volver para escribir tu propia dedicatoria">Escribe tu propia dedicatoria</a>
+          </div>
+          <img id="easterEggImg" src="cele.png" alt="Cele está aquí" />
+        `;
+
+        const easterEggImgPage = document.getElementById('easterEggImg');
+        if ((data.message || '').toLowerCase() === 'cele estuvo aqui') {
+          easterEggImgPage.style.display = 'block';
+        } else {
+          easterEggImgPage.style.display = 'none';
+        }
+
+      } catch {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
     }
   </script>
 </body>
 </html>
+
+
 
 
