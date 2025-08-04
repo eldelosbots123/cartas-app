@@ -3,54 +3,149 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Cartas Secretas - El papel y el sobre</title>
-<link href="https://fonts.googleapis.com/css2?family=Caveat&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="style.css" />
+<title>Cartitas Beta Simplificada</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+  input, textarea, button { font-size: 1em; margin-top: 8px; width: 100%; padding: 6px; }
+  button { cursor: pointer; }
+  button:disabled { background: #ccc; cursor: not-allowed; }
+  .cartita { border: 1px solid #ccc; margin-top: 10px; padding: 8px; border-radius: 6px; }
+  .footer { font-size: 0.8em; color: #555; margin-top: 4px; display: flex; justify-content: space-between; }
+  #mensajeConfirmacion { margin-top: 10px; font-weight: bold; }
+</style>
 </head>
 <body>
-  <h1>Cartas Secretas 📬</h1>
 
-  <div class="main-container">
+<h2>Cartitas Beta Simplificada</h2>
 
-    <aside class="sidebar">
-      <section id="perfil">
-        <h2>Tu Perfil</h2>
-        <input type="text" id="nombreUsuario" placeholder="Poné tu nombre (cambios cada 7 días)" maxlength="20" />
-        <small id="msg-cambio-nombre"></small>
-      </section>
+<label for="nombre">Tu nombre:</label>
+<input id="nombre" type="text" placeholder="Pon tu nombre aquí" />
+<button id="guardarNombreBtn">Guardar Nombre</button>
+<div id="nombreMsg" style="color: red; margin-top: 5px;"></div>
 
-      <section id="historialCartas">
-        <h2>Historial de Cartas</h2>
-        <div id="misCartitas">
-          <p>No enviaste cartas aún.</p>
-        </div>
-      </section>
+<label for="mensaje">Mensaje:</label>
+<textarea id="mensaje" rows="3" placeholder="Escribí tu carta aquí..."></textarea>
 
-      <section id="conectados">
-        <h2>Usuarios conectados</h2>
-        <ul id="listaConectados"><li>Cargando...</li></ul>
-      </section>
-    </aside>
+<button id="enviarBtn" disabled>Enviar Carta</button>
 
-    <main class="content">
-      <section id="escribirCarta" class="carta-papel">
-        <textarea id="mensaje" placeholder="Escribí tu carta aquí..."></textarea>
-        <input type="text" id="destinatario" placeholder="Destinatario (poné @nick para alguien)" maxlength="20" />
-        <button id="enviarBtn" disabled>Enviar Carta</button>
-        <p id="confirmacion"></p>
-      </section>
+<div id="mensajeConfirmacion"></div>
 
-      <section id="buzon">
-        <h2>Tu Buzón <span id="sobreAnimacion" class="sobre-cerrado" title="Tu buzón de cartas"></span></h2>
-        <div id="buzonCartitas">
-          <p>No hay cartas en tu buzón.</p>
-        </div>
-      </section>
-    </main>
+<h3>Mis Cartas Enviadas</h3>
+<div id="misCartas"></div>
 
-  </div>
+<script>
+const nombreInput = document.getElementById('nombre');
+const guardarNombreBtn = document.getElementById('guardarNombreBtn');
+const nombreMsg = document.getElementById('nombreMsg');
+const mensajeInput = document.getElementById('mensaje');
+const enviarBtn = document.getElementById('enviarBtn');
+const mensajeConfirmacion = document.getElementById('mensajeConfirmacion');
+const misCartasDiv = document.getElementById('misCartas');
 
-  <script src="script.js"></script>
+let usuario = null;
+let cartas = [];
+
+function cargarUsuario() {
+  const u = localStorage.getItem('usuario');
+  if (u) return JSON.parse(u);
+  return null;
+}
+
+function guardarUsuario(nick) {
+  localStorage.setItem('usuario', JSON.stringify({ nick }));
+  usuario = { nick };
+}
+
+function cargarCartas() {
+  const c = localStorage.getItem('cartas');
+  if (c) return JSON.parse(c);
+  return [];
+}
+
+function guardarCartas() {
+  localStorage.setItem('cartas', JSON.stringify(cartas));
+}
+
+function validarEnvio() {
+  if (usuario && mensajeInput.value.trim().length > 2) {
+    enviarBtn.disabled = false;
+  } else {
+    enviarBtn.disabled = true;
+  }
+}
+
+function mostrarCartas() {
+  misCartasDiv.innerHTML = '';
+  if (cartas.length === 0) {
+    misCartasDiv.innerHTML = '<p>No has enviado cartas aún.</p>';
+    return;
+  }
+  cartas.forEach(carta => {
+    const div = document.createElement('div');
+    div.classList.add('cartita');
+    div.innerHTML = `<strong>${carta.autor}:</strong> ${carta.texto}`;
+    misCartasDiv.appendChild(div);
+  });
+}
+
+guardarNombreBtn.addEventListener('click', () => {
+  const nombre = nombreInput.value.trim();
+  if (nombre.length === 0) {
+    nombreMsg.textContent = 'El nombre no puede estar vacío.';
+    return;
+  }
+  nombreMsg.textContent = '';
+  guardarUsuario(nombre);
+  nombreInput.disabled = true;
+  guardarNombreBtn.disabled = true;
+  validarEnvio();
+  mensajeConfirmacion.textContent = `Nombre guardado como "${nombre}". Ya podés enviar cartas.`;
+});
+
+mensajeInput.addEventListener('input', validarEnvio);
+
+enviarBtn.addEventListener('click', () => {
+  const texto = mensajeInput.value.trim();
+  if (!usuario) {
+    mensajeConfirmacion.style.color = 'red';
+    mensajeConfirmacion.textContent = 'Primero guardá tu nombre.';
+    return;
+  }
+  if (texto.length < 3) {
+    mensajeConfirmacion.style.color = 'red';
+    mensajeConfirmacion.textContent = 'El mensaje es demasiado corto.';
+    return;
+  }
+  const nuevaCarta = {
+    autor: usuario.nick,
+    texto,
+    fecha: new Date().toISOString(),
+  };
+  cartas.push(nuevaCarta);
+  guardarCartas();
+  mostrarCartas();
+  mensajeConfirmacion.style.color = 'green';
+  mensajeConfirmacion.textContent = 'Carta enviada con éxito!';
+  mensajeInput.value = '';
+  validarEnvio();
+});
+
+function init() {
+  usuario = cargarUsuario();
+  if (usuario) {
+    nombreInput.value = usuario.nick;
+    nombreInput.disabled = true;
+    guardarNombreBtn.disabled = true;
+    mensajeConfirmacion.textContent = `Bienvenido, ${usuario.nick}!`;
+  }
+  cartas = cargarCartas();
+  mostrarCartas();
+  validarEnvio();
+}
+
+init();
+</script>
+
 </body>
 </html>
 
