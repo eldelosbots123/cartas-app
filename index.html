@@ -3,58 +3,326 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Cartas Secretas - El papel y el sobre</title>
-<link href="https://fonts.googleapis.com/css2?family=Caveat&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="style.css" />
+<title>Carta para Conejo Olimpico</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat&display=swap');
+
+  body {
+    font-family: 'Caveat', cursive;
+    background: #ff8ac1;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+  }
+
+  header {
+    background-color: #ff69b4;
+    width: 100%;
+    padding: 1rem;
+    color: white;
+    font-weight: bold;
+    font-size: 2rem;
+    text-align: center;
+    font-family: 'Caveat', cursive;
+  }
+
+  #perfil {
+    background: #fff0f6;
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    margin: 1rem 0;
+    box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
+    max-width: 400px;
+    width: 90%;
+  }
+
+  #perfil label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+  }
+
+  #perfil input, #perfil select, #perfil textarea {
+    font-family: 'Caveat', cursive;
+    font-size: 1.4rem;
+    width: 100%;
+    padding: 0.3rem 0.6rem;
+    margin-bottom: 0.5rem;
+    border: 2px solid #ff69b4;
+    border-radius: 12px;
+    resize: none;
+  }
+
+  #perfil textarea {
+    height: 8rem;
+  }
+
+  #btnBloquearNombre {
+    background-color: #ffa3d7;
+    border: none;
+    padding: 0.3rem 0.7rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Caveat', cursive;
+    font-size: 1rem;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    margin-bottom: 0.7rem;
+  }
+
+  #btnBloquearNombre:hover {
+    background-color: #ff69b4;
+    color: white;
+  }
+
+  #enviarCarta {
+    background-color: #ff69b4;
+    color: white;
+    font-family: 'Caveat', cursive;
+    font-size: 1.5rem;
+    border: none;
+    border-radius: 15px;
+    padding: 0.5rem 1.2rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0.5rem;
+    transition: background-color 0.3s ease;
+  }
+
+  #enviarCarta:disabled {
+    background-color: #ffb6c1;
+    cursor: not-allowed;
+  }
+
+  #enviarCarta:hover:not(:disabled) {
+    background-color: #e0448b;
+  }
+
+  #cartas {
+    background: white;
+    max-width: 600px;
+    width: 90%;
+    margin-bottom: 2rem;
+    border-radius: 15px;
+    padding: 1rem;
+    box-shadow: 0 0 20px rgba(255, 105, 180, 0.4);
+  }
+
+  .carta {
+    border: 2px solid #ff69b4;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 1rem;
+    font-family: 'Caveat', cursive;
+    font-size: 1.3rem;
+    white-space: pre-wrap;
+  }
+
+  #msg-cambio-nombre {
+    font-size: 0.85rem;
+    color: #a12c62;
+    min-height: 1.2rem;
+    margin-bottom: 0.4rem;
+  }
+</style>
 </head>
 <body>
-  <h1>Cartas Secretas 📬</h1>
 
-  <div class="main-container">
+<header>Carta para Conejo Olimpico 🐇🏅</header>
 
-    <aside class="sidebar">
-      <section id="perfil">
-        <h2>Tu Perfil</h2>
-        <input type="text" id="nombreUsuario" placeholder="Poné tu nombre (cambios cada 7 días)" maxlength="20" />
-        <small id="msg-cambio-nombre"></small>
-      </section>
+<section id="perfil">
+  <label for="nombreUsuario">Tu nombre (cambios cada 7 días):</label>
+  <input type="text" id="nombreUsuario" placeholder="Poné tu nombre" maxlength="20" />
+  <button id="btnBloquearNombre" type="button">🔒 Bloquear nombre</button>
+  <small id="msg-cambio-nombre"></small>
 
-      <section id="historialCartas">
-        <h2>Historial de Cartas</h2>
-        <div id="misCartitas">
-          <p>No enviaste cartas aún.</p>
-        </div>
-      </section>
+  <label for="destinatario">Destinatario:</label>
+  <input type="text" id="destinatario" placeholder="¿Para quién es esta carta?" maxlength="30" />
 
-      <section id="conectados">
-        <h2>Usuarios conectados</h2>
-        <ul id="listaConectados"><li>Cargando...</li></ul>
-      </section>
-    </aside>
+  <label for="mensaje">Mensaje:</label>
+  <textarea id="mensaje" placeholder="Escribí tu carta aquí..."></textarea>
 
-    <main class="content">
-      <section id="escribirCarta" class="carta-papel">
-        <textarea id="mensaje" placeholder="Escribí tu carta aquí..."></textarea>
-        <input type="text" id="destinatario" placeholder="Destinatario (poné @nick para alguien)" maxlength="20" />
-        <button id="enviarBtn" disabled>Enviar Carta</button>
-        <p id="confirmacion"></p>
-      </section>
+  <button id="enviarCarta" disabled>Enviar carta 📝</button>
+</section>
 
-      <section id="buzon">
-        <h2>Tu Buzón <span id="sobreAnimacion" class="sobre-cerrado" title="Tu buzón de cartas"></span></h2>
-        <div id="buzonCartitas">
-          <p>No hay cartas en tu buzón.</p>
-        </div>
-      </section>
-    </main>
+<section id="cartas">
+  <h2>Cartas enviadas</h2>
+  <div id="listaCartas"></div>
+</section>
 
-  </div>
+<script>
+  // Referencias a elementos
+  const nombreInput = document.getElementById('nombreUsuario');
+  const destinatarioInput = document.getElementById('destinatario');
+  const mensajeInput = document.getElementById('mensaje');
+  const enviarBtn = document.getElementById('enviarCarta');
+  const listaCartas = document.getElementById('listaCartas');
+  const msgCambioNombre = document.getElementById('msg-cambio-nombre');
+  const btnBloquearNombre = document.getElementById('btnBloquearNombre');
 
-  <script src="script.js"></script>
+  // Estado bloqueo guardado (localStorage)
+  let nombreBloqueado = localStorage.getItem('nombreBloqueado') === 'true';
+
+  // Manejo de nombre guardado y fecha de cambio (cada 7 días)
+  const LS_NOMBRE = 'nombreUsuario';
+  const LS_FECHA_CAMBIO = 'fechaCambioNombre';
+
+  // Cargar nombre del localStorage si no está bloqueado, validar fecha cambio
+  function cargarNombre() {
+    const nombreGuardado = localStorage.getItem(LS_NOMBRE) || '';
+    const fechaCambioStr = localStorage.getItem(LS_FECHA_CAMBIO);
+    if (!fechaCambioStr) {
+      localStorage.setItem(LS_FECHA_CAMBIO, new Date().toISOString());
+    } else {
+      const fechaCambio = new Date(fechaCambioStr);
+      const hoy = new Date();
+      const diffDias = Math.floor((hoy - fechaCambio) / (1000*60*60*24));
+      if (diffDias >= 7) {
+        // Puede cambiar nombre, reseteamos bloqueo si estaba bloqueado
+        nombreBloqueado = false;
+        localStorage.setItem('nombreBloqueado', 'false');
+      }
+    }
+    nombreInput.value = nombreGuardado;
+  }
+
+  // Guardar nombre y actualizar fecha cambio solo si se puede cambiar
+  function validarYGuardarNombre() {
+    const nombre = nombreInput.value.trim();
+    if (nombre.length === 0) {
+      msgCambioNombre.textContent = 'El nombre no puede estar vacío.';
+      return false;
+    }
+    // Si bloqueado, no cambiar nada
+    if (nombreBloqueado) {
+      msgCambioNombre.textContent = 'El nombre está bloqueado, desbloquealo para cambiarlo.';
+      return false;
+    }
+
+    // Validar que no se cambie antes de 7 días
+    const fechaCambioStr = localStorage.getItem(LS_FECHA_CAMBIO);
+    if (fechaCambioStr) {
+      const fechaCambio = new Date(fechaCambioStr);
+      const hoy = new Date();
+      const diffDias = Math.floor((hoy - fechaCambio) / (1000*60*60*24));
+      if (diffDias < 7) {
+        msgCambioNombre.textContent = `Solo podés cambiar tu nombre cada 7 días. Faltan ${7 - diffDias} día(s).`;
+        // Poner nombre guardado real (no dejar cambiar a uno nuevo)
+        nombreInput.value = localStorage.getItem(LS_NOMBRE) || '';
+        return false;
+      }
+    }
+    // Guardamos nombre y fecha cambio
+    localStorage.setItem(LS_NOMBRE, nombre);
+    localStorage.setItem(LS_FECHA_CAMBIO, new Date().toISOString());
+    msgCambioNombre.textContent = '';
+    return true;
+  }
+
+  // Validar inputs para botón enviar
+  function validarInputsParaBoton() {
+    const textoValido = mensajeInput.value.trim().length > 0;
+    const destinatarioValido = destinatarioInput.value.trim().length > 0;
+    const nombreValido = nombreInput.value.trim().length > 0;
+    return textoValido && destinatarioValido && nombreValido;
+  }
+
+  // Actualizar estado bloqueo UI y botones
+  function actualizarEstadoBloqueo() {
+    nombreInput.disabled = nombreBloqueado;
+    enviarBtn.disabled = nombreBloqueado || !validarInputsParaBoton();
+    btnBloquearNombre.textContent = nombreBloqueado ? '🔓 Desbloquear nombre' : '🔒 Bloquear nombre';
+    if (nombreBloqueado) {
+      msgCambioNombre.textContent = 'El nombre está bloqueado y no puede cambiarse.';
+    } else {
+      msgCambioNombre.textContent = '';
+      validarYGuardarNombre();
+    }
+  }
+
+  // Validar inputs y actualizar botón enviar según bloqueo
+  function validarInputs() {
+    enviarBtn.disabled = nombreBloqueado || !validarInputsParaBoton();
+  }
+
+  // Cargar cartas guardadas (localStorage)
+  function cargarCartas() {
+    const cartasGuardadas = JSON.parse(localStorage.getItem('cartas') || '[]');
+    listaCartas.innerHTML = '';
+    if (cartasGuardadas.length === 0) {
+      listaCartas.textContent = 'No hay cartas enviadas todavía.';
+      return;
+    }
+    cartasGuardadas.forEach(carta => {
+      const divCarta = document.createElement('div');
+      divCarta.className = 'carta';
+      divCarta.textContent = `Para: ${carta.destinatario}\nDe: ${carta.remitente}\n\n${carta.mensaje}`;
+      listaCartas.appendChild(divCarta);
+    });
+  }
+
+  // Guardar nueva carta en localStorage
+  function guardarCarta(destinatario, remitente, mensaje) {
+    const cartasGuardadas = JSON.parse(localStorage.getItem('cartas') || '[]');
+    cartasGuardadas.unshift({ destinatario, remitente, mensaje });
+    localStorage.setItem('cartas', JSON.stringify(cartasGuardadas));
+  }
+
+  // Evento: cambio nombre
+  nombreInput.addEventListener('change', () => {
+    if (!nombreBloqueado) {
+      validarYGuardarNombre();
+      validarInputs();
+    } else {
+      msgCambioNombre.textContent = 'El nombre está bloqueado, desbloquealo para cambiarlo.';
+      nombreInput.value = localStorage.getItem(LS_NOMBRE) || '';
+    }
+  });
+
+  // Evento: inputs de mensaje y destinatario para activar botón enviar
+  destinatarioInput.addEventListener('input', validarInputs);
+  mensajeInput.addEventListener('input', validarInputs);
+
+  // Evento: botón bloqueo nombre
+  btnBloquearNombre.addEventListener('click', () => {
+    nombreBloqueado = !nombreBloqueado;
+    localStorage.setItem('nombreBloqueado', nombreBloqueado.toString());
+    actualizarEstadoBloqueo();
+  });
+
+  // Evento: enviar carta
+  enviarBtn.addEventListener('click', () => {
+    if (enviarBtn.disabled) return;
+
+    const remitente = nombreInput.value.trim();
+    const destinatario = destinatarioInput.value.trim();
+    const mensaje = mensajeInput.value.trim();
+
+    if (!remitente || !destinatario || !mensaje) {
+      alert('Completa todos los campos para enviar la carta.');
+      return;
+    }
+
+    guardarCarta(destinatario, remitente, mensaje);
+
+    destinatarioInput.value = '';
+    mensajeInput.value = '';
+    enviarBtn.disabled = true;
+
+    cargarCartas();
+  });
+
+  // Al cargar la página
+  window.addEventListener('load', () => {
+    cargarNombre();
+    actualizarEstadoBloqueo();
+    cargarCartas();
+    validarInputs();
+  });
+</script>
+
 </body>
 </html>
-
-
-
-
-
