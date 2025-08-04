@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tu Dedicatoria Especial</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Pacifico&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>💜 Te lo diría, pero…</h1>
+  <p class="subtitle">Escribe algo bonito. Firma si quieres. Comparte el QR y deja que el destino actúe ✨</p>
+
+  <form id="dedicationForm">
+    <input type="text" id="to" placeholder="Para... (opcional)" />
+    <textarea id="message" rows="5" placeholder="Tu mensaje con emojis 😘 y saltos ↵" required></textarea>
+    <input type="text" id="from" placeholder="Firma... (opcional)" />
+    <div style="display: flex; align-items: center;">
+      <button type="submit">Generar dedicatoria</button>
+      <button type="button" id="fontToggle" title="Cambiar fuente">🅰️ Cambiar fuente</button>
+    </div>
+  </form>
+
+  <div class="output" id="output" style="display: none;">
+    <h2>Tu enlace secreto ✨</h2>
+    <a id="link" href="#" target="_blank" rel="noopener noreferrer"></a>
+
+    <div class="qr" id="qr"></div>
+
+    <div class="share-buttons">
+      <button id="copyBtn">📋 Copiar enlace</button>
+      <a id="whatsappBtn" target="_blank" rel="noopener noreferrer">📲 Compartir por WhatsApp</a>
+      <button id="themeToggle">🎨 Cambiar tema</button>
+    </div>
+  </div>
+
+  <div id="feedbackMsg"></div>
+
+  <div class="comment-section" id="commentSection" style="display:none;">
+    <h3>Comentarios</h3>
+    <div id="commentsList"></div>
+  </div>
+
+  <audio id="pop" src="pop.mp3" preload="auto"></audio>
+
+  <script src="lib/qrcode.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
