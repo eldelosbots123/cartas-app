@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Pacifico&display=swap" rel="stylesheet" />
   
   <style>
+    /* Igual que antes */
     body {
       font-family: 'Poppins', sans-serif;
       background: #e6e0f8;
@@ -162,7 +163,7 @@
   <form id="dedicationForm" aria-label="Formulario para crear dedicatoria">
     <input type="text" id="to" placeholder="Para... (opcional)" aria-label="Para" />
     <textarea id="message" rows="5" placeholder="Tu mensaje..." required aria-required="true" aria-label="Tu mensaje"></textarea>
-    <input type="text" id="from" placeholder="¿Quieres firmar? (opcional)" aria-label="Firma" />
+    <input type="text" id="from" placeholder="Atentamente... (opcional)" aria-label="Atentamente" />
     <button type="submit" aria-label="Generar dedicatoria y enlace">Generar dedicatoria</button>
   </form>
 
@@ -203,7 +204,6 @@
         return;
       }
 
-      // No mostramos easter egg en el formulario, solo en la dedicatoria final
       easterEggImg.style.display = 'none';
 
       const encoded = encodeDedication({ to, message, from });
@@ -219,7 +219,6 @@
       });
     });
 
-    // Mostrar dedicatoria si viene por URL
     const params = new URLSearchParams(window.location.search);
     if (params.has('d')) {
       try {
@@ -237,7 +236,6 @@
 
         const easterEggImgPage = document.getElementById('easterEggImg');
 
-        // Mostrar easter egg solo si la firma contiene "cele estuvo aqui"
         if ((data.from || '').toLowerCase().includes('cele estuvo aqui')) {
           easterEggImgPage.style.display = 'block';
         } else {
