@@ -17,6 +17,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
     }
     h1 {
       font-family: 'Pacifico', cursive;
@@ -43,11 +44,12 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      box-sizing: border-box;
     }
     input[type="text"], textarea {
       font-family: 'Poppins', sans-serif;
-      font-size: 1rem;
-      padding: 0.75rem 1rem;
+      font-size: 1.15rem;
+      padding: 1rem 1.2rem;
       border: 2px solid #9b80e5;
       border-radius: 8px;
       outline-offset: 2px;
@@ -55,6 +57,7 @@
       resize: vertical;
       background: #f5f0ff;
       color: #4b367c;
+      min-height: 3.5rem;
     }
     input[type="text"]:focus, textarea:focus {
       border-color: #7c59c9;
@@ -63,14 +66,15 @@
     button {
       background: #7c59c9;
       color: white;
-      font-weight: 600;
-      font-size: 1.1rem;
-      padding: 0.75rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      padding: 1rem;
       border: none;
       border-radius: 12px;
       cursor: pointer;
       box-shadow: 0 5px 10px rgba(124,89,201,0.6);
       transition: background-color 0.3s ease;
+      user-select: none;
     }
     button:hover, button:focus {
       background: #a18be7;
@@ -92,6 +96,7 @@
       color: #4b367c;
       font-weight: 600;
       text-decoration: none;
+      word-break: break-all;
     }
     .output a:hover, .output a:focus {
       text-decoration: underline;
@@ -158,6 +163,57 @@
       display: block;
       background: transparent;
     }
+    /* Feedback mensaje */
+    #feedbackMsg {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #7c59c9cc;
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 24px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 14px rgba(124,89,201,0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      user-select: none;
+      z-index: 10000;
+    }
+    #feedbackMsg.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    /* Mejor responsive */
+    @media (max-width: 480px) {
+      body {
+        padding: 0.5rem 1rem;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      form {
+        padding: 1rem 1.5rem;
+      }
+      input[type="text"], textarea {
+        font-size: 1rem;
+        min-height: 3rem;
+        padding: 0.8rem 1rem;
+      }
+      button {
+        font-size: 1.1rem;
+        padding: 0.8rem;
+      }
+      .output {
+        font-size: 1rem;
+        padding: 1rem 1.5rem;
+      }
+      #easterEggImg {
+        width: 90px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -165,9 +221,9 @@
   <p class="subtitle">¿Quieres dedicar algo pero no te atreves? Aquí puedes hacerlo con un link y QR para compartir.</p>
 
   <form id="dedicationForm" aria-label="Formulario para crear dedicatoria">
-    <input type="text" id="to" placeholder="Para... (opcional)" aria-label="Para" />
-    <textarea id="message" rows="5" placeholder="Tu mensaje..." required aria-required="true" aria-label="Tu mensaje"></textarea>
-    <input type="text" id="from" placeholder="Atentamente... (opcional)" aria-label="Atentamente" />
+    <input type="text" id="to" placeholder="Para... (opcional)" aria-label="Para" autocomplete="off" />
+    <textarea id="message" rows="5" placeholder="Tu mensaje..." required aria-required="true" aria-label="Tu mensaje" autocomplete="off"></textarea>
+    <input type="text" id="from" placeholder="Atentamente... (opcional)" aria-label="Atentamente" autocomplete="off" />
     <button type="submit" aria-label="Generar dedicatoria y enlace">Generar dedicatoria</button>
   </form>
 
@@ -176,6 +232,8 @@
     <a id="link" href="#" target="_blank" rel="noopener noreferrer"></a>
     <div class="qr" id="qr"></div>
   </div>
+
+  <div id="feedbackMsg" role="alert" aria-live="assertive"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
@@ -192,100 +250,101 @@
     const output = document.getElementById('output');
     const link = document.getElementById('link');
     const qrContainer = document.getElementById('qr');
+    const feedbackMsg = document.getElementById('feedbackMsg');
 
     form.addEventListener('submit', e => {
       e.preventDefault();
 
-      const to = document.getElementById('to').value.trim();
-      const message = document.getElementById('message').value.trim();
-      const from = document.getElementById('from').value.trim();
+      const data = {
+        to: form.to.value.trim(),
+        message: form.message.value.trim(),
+        from: form.from.value.trim()
+      };
 
-      if (!message) {
+      if (!data.message) {
         alert('Por favor, escribe tu mensaje.');
         return;
       }
 
-      // Ocultar easter egg si estaba visible
-      const existingEgg = document.getElementById('easterEggLink');
-      if (existingEgg) existingEgg.style.display = 'none';
-
-      const encoded = encodeDedication({ to, message, from });
+      const encoded = encodeDedication(data);
       const url = `${window.location.origin}${window.location.pathname}?d=${encoded}`;
 
       link.href = url;
       link.textContent = url;
-      output.style.display = 'block';
 
       qrContainer.innerHTML = '';
-      QRCode.toCanvas(document.createElement('canvas'), url, (err, canvas) => {
-        if (!err) qrContainer.appendChild(canvas);
-      });
+      QRCode.toCanvas(qrContainer, url, { width: 180, margin: 2, color: { dark: '#7c59c9', light: '#f2eefa' } });
+
+      output.style.display = 'block';
+
+      showFeedback('¡Mensaje enviado! Tu dedicatoria ya está en el aire 🚀');
     });
 
-    const params = new URLSearchParams(window.location.search);
-    if (params.has('d')) {
-      try {
-        const data = decodeDedication(params.get('d'));
+    function showFeedback(msg) {
+      feedbackMsg.textContent = msg;
+      feedbackMsg.classList.add('show');
+      setTimeout(() => {
+        feedbackMsg.classList.remove('show');
+      }, 4000);
+    }
 
-        const dedicationContainer = document.createElement('div');
-        dedicationContainer.className = 'dedication-container';
-        dedicationContainer.setAttribute('role', 'main');
-        dedicationContainer.tabIndex = 0;
+    // Cuando hay datos en URL, mostrar dedicatoria
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const d = params.get('d');
 
-        dedicationContainer.innerHTML = `
-          <h1>💌 Para: ${data.to || 'Alguien especial'}</h1>
-          <p class="message">${data.message}</p>
-          <p class="signature">— ${data.from || 'Anónimo'}</p>
-          <a href="/" class="back-link" aria-label="Volver para escribir tu propia dedicatoria">Escribe tu propia dedicatoria</a>
-        `;
+      if (d) {
+        try {
+          const data = decodeDedication(d);
 
-        document.body.innerHTML = '';
-        document.body.appendChild(dedicationContainer);
+          document.body.innerHTML = `
+            <div class="dedication-container" role="main">
+              <h1>Para${data.to ? ' ' + escapeHtml(data.to) : ''}</h1>
+              <p class="message">${escapeHtml(data.message).replace(/\n/g, '<br>')}</p>
+              <p class="signature">- ${escapeHtml(data.from) || 'Alguien especial'}</p>
+            </div>
+            <a href="${window.location.origin}${window.location.pathname}" class="back-link" aria-label="Volver al formulario">← Hacer otra dedicatoria</a>
+          `;
 
-        const easterEggLink = document.createElement('a');
-        easterEggLink.href = 'https://www.instagram.com/dice.cele_sketch/';
-        easterEggLink.target = '_blank';
-        easterEggLink.rel = 'noopener noreferrer';
-        easterEggLink.ariaLabel = 'Ir al Instagram de Cele';
-        easterEggLink.id = 'easterEggLink';
-        Object.assign(easterEggLink.style, {
-          position: 'fixed',
-          bottom: '12px',
-          right: '12px',
-          zIndex: '9999',
-          display: 'none',
-          cursor: 'pointer',
-        });
-
-        const img = document.createElement('img');
-        img.src = 'cele.png';
-        img.alt = 'Cele está aquí';
-        img.id = 'easterEggImg';
-        Object.assign(img.style, {
-          width: '120px',
-          borderRadius: '12px',
-          boxShadow: '0 4px 14px rgba(106,75,154,0.3)',
-          userSelect: 'none',
-          pointerEvents: 'auto',
-          display: 'block',
-          background: 'transparent',
-        });
-
-        easterEggLink.appendChild(img);
-        document.body.appendChild(easterEggLink);
-
-        // Mostrar easter egg solo si "Atentamente" contiene "cele estuvo aqui" (case insensitive)
-        if ((data.from || '').toLowerCase().includes('cele paso por aqui')) {
-          easterEggLink.style.display = 'block';
+          // Easter egg imagen
+          if ((data.from || '').toLowerCase().includes('cele paso por aqui')) {
+            showEasterEgg();
+          }
+        } catch {
+          window.history.replaceState({}, document.title, window.location.pathname);
         }
-
-      } catch {
-        window.history.replaceState({}, document.title, window.location.pathname);
       }
+    });
+
+    function showEasterEgg() {
+      const easterEggLink = document.createElement('a');
+      easterEggLink.href = 'https://www.instagram.com/dice.cele_sketch/';
+      easterEggLink.target = '_blank';
+      easterEggLink.rel = 'noopener noreferrer';
+      easterEggLink.id = 'easterEggLink';
+
+      const img = document.createElement('img');
+      img.src = 'cele.png';
+      img.alt = 'Cele está aquí';
+      img.id = 'easterEggImg';
+
+      easterEggLink.appendChild(img);
+      document.body.appendChild(easterEggLink);
+      easterEggLink.style.display = 'block';
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
   </script>
 </body>
 </html>
+
 
 
 
