@@ -3,214 +3,58 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Cartitas Beta Completa</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 10px;
-    background: #fafafa;
-  }
-  h2, h3 {
-    text-align: center;
-  }
-  label {
-    font-weight: bold;
-    display: block;
-    margin-top: 15px;
-  }
-  input[type="text"], textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    font-size: 1em;
-    box-sizing: border-box;
-  }
-  textarea {
-    resize: vertical;
-  }
-  button {
-    margin-top: 15px;
-    padding: 10px;
-    font-size: 1em;
-    width: 100%;
-    cursor: pointer;
-    background-color: #2c87f0;
-    border: none;
-    color: white;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-  }
-  button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
-  #mensajeConfirmacion {
-    margin-top: 12px;
-    font-weight: 600;
-    text-align: center;
-  }
-  #misCartas {
-    margin-top: 20px;
-  }
-  .cartita {
-    border: 1px solid #ddd;
-    background: white;
-    padding: 12px;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    box-shadow: 0 0 5px #eee;
-  }
-  .cartita strong {
-    color: #2c87f0;
-  }
-  #nombreMsg {
-    color: #c0392b;
-    margin-top: 5px;
-    font-size: 0.9em;
-  }
-</style>
+<title>Cartas Secretas - El papel y el sobre</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <h1>Cartas Secretas 📬</h1>
 
-<h2>Cartitas Beta Completa</h2>
+  <div class="main-container">
 
-<label for="nombre">Tu nombre:</label>
-<input id="nombre" type="text" placeholder="Pon tu nombre aquí" autocomplete="off" />
-<button id="guardarNombreBtn">Guardar Nombre</button>
-<div id="nombreMsg"></div>
+    <aside class="sidebar">
+      <section id="perfil">
+        <h2>Tu Perfil</h2>
+        <input type="text" id="nombreUsuario" placeholder="Poné tu nombre (cambios cada 7 días)" maxlength="20" />
+        <small id="msg-cambio-nombre"></small>
+      </section>
 
-<label for="mensaje">Escribe tu carta:</label>
-<textarea id="mensaje" rows="4" placeholder="Tu mensaje..."></textarea>
-<button id="enviarBtn" disabled>Enviar Carta</button>
+      <section id="historialCartas">
+        <h2>Historial de Cartas</h2>
+        <div id="misCartitas">
+          <p>No enviaste cartas aún.</p>
+        </div>
+      </section>
 
-<div id="mensajeConfirmacion"></div>
+      <section id="conectados">
+        <h2>Usuarios conectados</h2>
+        <ul id="listaConectados"><li>Cargando...</li></ul>
+      </section>
+    </aside>
 
-<h3>Mis Cartas Enviadas</h3>
-<div id="misCartas"></div>
+    <main class="content">
+      <section id="escribirCarta" class="carta-papel">
+        <textarea id="mensaje" placeholder="Escribí tu carta aquí..."></textarea>
+        <input type="text" id="destinatario" placeholder="Destinatario (poné @nick para alguien)" maxlength="20" />
+        <button id="enviarBtn" disabled>Enviar Carta</button>
+        <p id="confirmacion"></p>
+      </section>
 
-<script>
-(() => {
-  const nombreInput = document.getElementById('nombre');
-  const guardarNombreBtn = document.getElementById('guardarNombreBtn');
-  const nombreMsg = document.getElementById('nombreMsg');
-  const mensajeInput = document.getElementById('mensaje');
-  const enviarBtn = document.getElementById('enviarBtn');
-  const mensajeConfirmacion = document.getElementById('mensajeConfirmacion');
-  const misCartasDiv = document.getElementById('misCartas');
+      <section id="buzon">
+        <h2>Tu Buzón <span id="sobreAnimacion" class="sobre-cerrado" title="Tu buzón de cartas"></span></h2>
+        <div id="buzonCartitas">
+          <p>No hay cartas en tu buzón.</p>
+        </div>
+      </section>
+    </main>
 
-  let usuario = null;
-  let cartas = [];
+  </div>
 
-  // Carga usuario desde localStorage
-  function cargarUsuario() {
-    const u = localStorage.getItem('usuario');
-    return u ? JSON.parse(u) : null;
-  }
-
-  // Guarda usuario en localStorage
-  function guardarUsuario(nick) {
-    localStorage.setItem('usuario', JSON.stringify({ nick }));
-    usuario = { nick };
-  }
-
-  // Carga cartas desde localStorage
-  function cargarCartas() {
-    const c = localStorage.getItem('cartas');
-    return c ? JSON.parse(c) : [];
-  }
-
-  // Guarda cartas en localStorage
-  function guardarCartas() {
-    localStorage.setItem('cartas', JSON.stringify(cartas));
-  }
-
-  // Valida si el botón enviar debe habilitarse
-  function validarEnvio() {
-    const msgValido = mensajeInput.value.trim().length > 2;
-    const usuarioValido = usuario && usuario.nick.length > 0;
-    enviarBtn.disabled = !(msgValido && usuarioValido);
-  }
-
-  // Muestra las cartas enviadas
-  function mostrarCartas() {
-    misCartasDiv.innerHTML = '';
-    if (cartas.length === 0) {
-      misCartasDiv.innerHTML = '<p>No has enviado cartas aún.</p>';
-      return;
-    }
-    cartas.forEach(carta => {
-      const div = document.createElement('div');
-      div.classList.add('cartita');
-      div.innerHTML = `<strong>${carta.autor}</strong>: ${carta.texto}`;
-      misCartasDiv.appendChild(div);
-    });
-  }
-
-  // Guardar nombre usuario al click
-  guardarNombreBtn.addEventListener('click', () => {
-    const nombre = nombreInput.value.trim();
-    if (nombre.length === 0) {
-      nombreMsg.textContent = 'El nombre no puede estar vacío.';
-      return;
-    }
-    nombreMsg.textContent = '';
-    guardarUsuario(nombre);
-    nombreInput.disabled = true;
-    guardarNombreBtn.disabled = true;
-    mensajeConfirmacion.textContent = `Nombre guardado como "${nombre}". Ya podés enviar cartas.`;
-    validarEnvio();
-  });
-
-  // Validar inputs para habilitar botón enviar
-  mensajeInput.addEventListener('input', validarEnvio);
-
-  // Enviar carta
-  enviarBtn.addEventListener('click', () => {
-    const texto = mensajeInput.value.trim();
-    if (!usuario) {
-      mensajeConfirmacion.style.color = 'red';
-      mensajeConfirmacion.textContent = 'Primero guardá tu nombre.';
-      return;
-    }
-    if (texto.length < 3) {
-      mensajeConfirmacion.style.color = 'red';
-      mensajeConfirmacion.textContent = 'El mensaje es demasiado corto.';
-      return;
-    }
-
-    cartas.push({ autor: usuario.nick, texto, fecha: new Date().toISOString() });
-    guardarCartas();
-    mostrarCartas();
-
-    mensajeConfirmacion.style.color = 'green';
-    mensajeConfirmacion.textContent = 'Carta enviada con éxito!';
-
-    mensajeInput.value = '';
-    validarEnvio();
-  });
-
-  // Inicialización
-  function init() {
-    usuario = cargarUsuario();
-    if (usuario) {
-      nombreInput.value = usuario.nick;
-      nombreInput.disabled = true;
-      guardarNombreBtn.disabled = true;
-      mensajeConfirmacion.textContent = `Bienvenido, ${usuario.nick}!`;
-    }
-    cartas = cargarCartas();
-    mostrarCartas();
-    validarEnvio();
-  }
-
-  init();
-})();
-</script>
-
+  <script src="script.js"></script>
 </body>
 </html>
+
+
 
 
 
