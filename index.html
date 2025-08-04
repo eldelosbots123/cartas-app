@@ -10,8 +10,7 @@
       font-family: 'Poppins', sans-serif;
       background: #e6e0f8;
       color: #4b367c;
-      margin: 0;
-      padding: 1rem;
+      margin: 0; padding: 1rem;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -104,15 +103,6 @@
       margin-top: 1rem;
       display: flex;
       justify-content: center;
-      align-items: center;
-      gap: 10px;
-    }
-    .qr::after {
-      content: "";
-      display: inline-block;
-      background: url('gatito.png') no-repeat center/contain;
-      width: 40px;
-      height: 40px;
     }
     .dedication-container {
       background: #d9cffb;
@@ -156,27 +146,120 @@
     }
     .cele-easteregg {
       position: absolute;
-      bottom: -30px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: auto;
+      bottom: 16px;
+      right: 16px;
+      width: 90px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .cele-easteregg:hover {
+      transform: scale(1.1);
     }
     @media (max-width: 480px) {
-      .dedication-container {
-        padding: 1rem;
-      }
-      h1 {
-        font-size: 2rem;
+      .cele-easteregg {
+        width: 70px;
+        bottom: 10px;
+        right: 10px;
       }
     }
   </style>
 </head>
 <body>
+  <h1>Te lo diría, pero…</h1>
+  <p class="subtitle">¿Quieres dedicar algo pero no te atreves? Aquí puedes hacerlo con un link y QR para compartir.</p>
+
+  <form id="dedicationForm">
+    <input type="text" id="to" placeholder="Para... (opcional)" />
+    <textarea id="message" rows="5" placeholder="Tu mensaje..." required></textarea>
+    <input type="text" id="from" placeholder="Firma... (opcional)" />
+    <button type="submit">Generar dedicatoria</button>
+  </form>
+
+  <div class="output" id="output" style="display: none;">
+    <h2>Tu enlace secreto ✨</h2>
+    <a id="link" href="#" target="_blank"></a>
+    <div class="qr" id="qr"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
+    function encodeDedication(data) {
+      const json = JSON.stringify(data);
+      return btoa(unescape(encodeURIComponent(json)));
+    }
+
     function decodeDedication(b64) {
       return JSON.parse(decodeURIComponent(escape(atob(b64))));
     }
+
+    const form = document.getElementById('dedicationForm');
+    const output = document.getElementById('output');
+    const link = document.getElementById('link');
+    const qrContainer = document.getElementById('qr');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const data = {
+        to: form.to.value.trim(),
+        message: form.message.value.trim(),
+        from: form.from.value.trim()
+      };
+
+      if (!data.message) {
+        alert('Por favor, escribe tu mensaje.');
+        return;
+      }
+
+      const encoded = encodeDedication(data);
+      const url = `${window.location.origin}${window.location.pathname}?d=${encoded}`;
+      link.href = url;
+      link.textContent = url;
+      output.style.display = 'block';
+      qrContainer.innerHTML = '';
+      QRCode.toCanvas(document.createElement('canvas'), url, {
+        width: 180,
+        margin: 2,
+        color: { dark: '#7c59c9', light: '#f2eefa' }
+      }, (err, canvas) => {
+        if (err) return console.error(err);
+        qrContainer.appendChild(canvas);
+      });
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const d = params.get('d');
+      if (d) {
+        try {
+          const data = decodeDedication(d);
+          const container = document.createElement('div');
+          container.className = 'dedication-container';
+          container.innerHTML = `
+            <h1>Para${data.to ? ' ' + escapeHtml(data.to) : ''}</h1>
+            <p class="message">${escapeHtml(data.message).replace(/\n/g, '<br>')}</p>
+            <p class="signature">- ${escapeHtml(data.from || 'Alguien especial')}</p>
+          `;
+          if ((data.from || '').toLowerCase().includes('cele paso por aqui')) {
+            const link = document.createElement('a');
+            link.href = 'https://www.instagram.com/dice.cele_sketch/';
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            const img = document.createElement('img');
+            img.src = 'cele.png';
+            img.alt = 'Cele';
+            img.className = 'cele-easteregg';
+            link.appendChild(img);
+            container.appendChild(link);
+          }
+          document.body.innerHTML = '';
+          document.body.appendChild(container);
+          document.body.innerHTML += `<a class="back-link" href="${window.location.pathname}">← Hacer otra dedicatoria</a>`;
+        } catch (err) {
+          window.location.href = window.location.pathname;
+        }
+      }
+    });
+
     function escapeHtml(text) {
       return text
         .replace(/&/g, "&amp;")
@@ -185,28 +268,11 @@
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
     }
-    const params = new URLSearchParams(window.location.search);
-    const d = params.get('d');
-    if (d) {
-      try {
-        const data = decodeDedication(d);
-        const showCele = (data.from || '').toLowerCase().includes('cele paso por aqui');
-        document.body.innerHTML = `
-          <div class="dedication-container">
-            <h1>Para${data.to ? ' ' + escapeHtml(data.to) : ''}</h1>
-            <p class="message">${escapeHtml(data.message).replace(/\n/g, '<br>')}</p>
-            <p class="signature">- ${escapeHtml(data.from) || 'Alguien especial'}</p>
-            ${showCele ? '<img src="cele.png" alt="Cele estuvo aquí" class="cele-easteregg">' : ''}
-          </div>
-          <a href="${window.location.origin}${window.location.pathname}" class="back-link">← Hacer otra dedicatoria</a>
-        `;
-      } catch (e) {
-        document.body.innerHTML = '<p>Hubo un error mostrando la dedicatoria.</p>';
-      }
-    }
   </script>
 </body>
 </html>
+
+
 
 
 
