@@ -19,9 +19,10 @@
 
     h1 {
       font-family: 'Pacifico', cursive;
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       margin-bottom: 0.5rem;
       color: #7c59c9;
+      text-align: center;
     }
 
     .subtitle {
@@ -36,8 +37,8 @@
       background: #d9cffb;
       padding: 2rem;
       border-radius: 16px;
-      max-width: 440px;
       width: 100%;
+      max-width: 480px;
       box-shadow: 0 6px 16px rgba(106,75,154,0.25);
       display: flex;
       flex-direction: column;
@@ -76,28 +77,31 @@
       padding: 2rem;
       border-radius: 16px;
       box-shadow: 0 6px 16px rgba(106,75,154,0.25);
-      max-width: 440px;
       width: 100%;
+      max-width: 480px;
       text-align: center;
     }
 
     .output a {
       color: #4b367c;
       font-weight: bold;
-      word-break: break-all;
+      word-break: break-word;
+      display: block;
+      margin-top: 1rem;
     }
 
     .qr-wrapper {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      margin-top: 1rem;
+      justify-content: center;
       gap: 1rem;
+      margin-top: 1rem;
     }
 
     .cat {
-      width: 48px;
-      height: 48px;
+      width: 60px;
+      height: 60px;
       background: url('cele.png') no-repeat center/contain;
       cursor: pointer;
     }
@@ -107,7 +111,7 @@
       padding: 2rem;
       border-radius: 16px;
       text-align: center;
-      max-width: 440px;
+      max-width: 480px;
       box-shadow: 0 6px 16px rgba(106,75,154,0.25);
     }
 
@@ -130,10 +134,26 @@
     }
 
     #easterEgg img {
-      width: 100px;
+      width: 90px;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.9rem;
+      }
+
+      .qr-wrapper {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .cat {
+        width: 48px;
+        height: 48px;
+      }
     }
   </style>
 </head>
@@ -196,7 +216,8 @@
       link.textContent = url;
 
       QRCode.toCanvas(qrCanvas, url, {
-        width: 160,
+        width: 200,
+        margin: 1,
         color: {
           dark: '#7c59c9',
           light: '#f6f0ff'
@@ -215,7 +236,7 @@
           document.body.innerHTML = `
             <div class="dedication-container">
               <h2>Para ${to || 'vos'}</h2>
-              <div class="message">${message.replace(/\\n/g, '<br>')}</div>
+              <div class="message">${message.replace(/\n/g, '<br>')}</div>
               <div class="signature">– ${from || 'alguien misterioso'}</div>
             </div>
           `;
@@ -238,6 +259,7 @@
   </script>
 </body>
 </html>
+
 
 
 
