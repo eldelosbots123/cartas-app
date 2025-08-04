@@ -101,11 +101,69 @@
     .output a:hover, .output a:focus {
       text-decoration: underline;
     }
-    .qr {
-      margin-top: 1rem;
+
+    /* Contenedor QR + gatito */
+    .qr-gatito-container {
       display: flex;
+      align-items: center;
+      gap: 12px;
       justify-content: center;
+      margin-top: 1rem;
     }
+
+    .qr {
+      /* QR ya tenía estilos, no los tocamos */
+    }
+
+    /* Gatito CSS */
+    .cat-css {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      cursor: pointer;
+      filter: drop-shadow(0 0 2px #7c59c9);
+      flex-shrink: 0;
+    }
+    .cat-css .ear {
+      position: absolute;
+      width: 12px;
+      height: 18px;
+      background: #7c59c9;
+      border-radius: 50% 50% 10% 10%;
+      top: 0;
+    }
+    .cat-css .ear.left { left: 4px; transform: rotate(-15deg);}
+    .cat-css .ear.right { right: 4px; transform: rotate(15deg);}
+    .cat-css .face {
+      position: absolute;
+      top: 12px; left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 36px;
+      background: #a18be7;
+      border-radius: 50%;
+      box-shadow: inset 4px 4px 6px #7c59c9;
+    }
+    .cat-css .eye {
+      position: absolute;
+      top: 20px;
+      width: 6px; height: 6px;
+      background: #4b367c;
+      border-radius: 50%;
+    }
+    .cat-css .eye.left { left: 10px; }
+    .cat-css .eye.right { right: 10px; }
+    .cat-css .nose {
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 5px;
+      background: #4b367c;
+      border-radius: 3px 3px 10px 10px;
+    }
+
     .dedication-container {
       background: #d9cffb;
       padding: 2rem;
@@ -213,6 +271,35 @@
       #easterEggImg {
         width: 90px;
       }
+      .cat-css {
+        width: 36px;
+        height: 36px;
+      }
+      .cat-css .ear {
+        width: 8px;
+        height: 12px;
+      }
+      .cat-css .face {
+        width: 24px;
+        height: 24px;
+        top: 8px;
+      }
+      .cat-css .eye {
+        width: 4px;
+        height: 4px;
+        top: 14px;
+      }
+      .cat-css .eye.left {
+        left: 7px;
+      }
+      .cat-css .eye.right {
+        right: 7px;
+      }
+      .cat-css .nose {
+        width: 6px;
+        height: 4px;
+        top: 18px;
+      }
     }
   </style>
 </head>
@@ -227,154 +314,133 @@
     <button type="submit" aria-label="Generar dedicatoria y enlace">Generar dedicatoria</button>
   </form>
 
-  <div class="output" id="output" style="display: none;" aria-live="polite" role="region">
-    <h2>Tu enlace secreto ✨</h2>
-    <a id="link" href="#" target="_blank" rel="noopener noreferrer"></a>
-    <div class="qr" id="qr"></div>
+  <div class="output" id="output" style="display: none;" aria-live="polite" aria-atomic="true">
+    <div class="qr-gatito-container" aria-label="Código QR y acceso rápido">
+      <div id="qr"></div>
+      <a href="https://www.instagram.com/cele_de_og" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Cele">
+        <div class="cat-css" role="img" aria-hidden="true">
+          <div class="ear left"></div>
+          <div class="ear right"></div>
+          <div class="face">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="nose"></div>
+          </div>
+        </div>
+      </a>
+    </div>
+    <p>Comparte o guarda este enlace: <a href="#" id="dedicationLink" target="_blank" rel="noopener noreferrer"></a></p>
   </div>
 
-  <div id="feedbackMsg" role="alert" aria-live="assertive"></div>
+  <div class="dedication-container" id="dedicationDisplay" style="display: none;" aria-live="polite" aria-atomic="true" tabindex="0">
+    <h1>Dedicatoria</h1>
+    <p class="message" id="displayMessage"></p>
+    <p class="signature" id="displaySignature"></p>
+    <a href="#" class="back-link" id="backLink">← Volver</a>
+  </div>
+
+  <div id="feedbackMsg" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
-    function encodeDedication(data) {
-      const json = JSON.stringify(data);
-      return btoa(unescape(encodeURIComponent(json)));
-    }
-
-    function decodeDedication(b64) {
-      return JSON.parse(decodeURIComponent(escape(atob(b64))));
-    }
-
     const form = document.getElementById('dedicationForm');
     const output = document.getElementById('output');
-    const link = document.getElementById('link');
     const qrContainer = document.getElementById('qr');
+    const dedicationLink = document.getElementById('dedicationLink');
+    const dedicationDisplay = document.getElementById('dedicationDisplay');
+    const displayMessage = document.getElementById('displayMessage');
+    const displaySignature = document.getElementById('displaySignature');
+    const backLink = document.getElementById('backLink');
     const feedbackMsg = document.getElementById('feedbackMsg');
 
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-
-      const data = {
-        to: form.to.value.trim(),
-        message: form.message.value.trim(),
-        from: form.from.value.trim()
-      };
-
-      if (!data.message) {
-        alert('Por favor, escribe tu mensaje.');
-        return;
-      }
-
-      const encoded = encodeDedication(data);
-      const url = `${window.location.origin}${window.location.pathname}?d=${encoded}`;
-
-      link.href = url;
-      link.textContent = url;
-
-      generateCustomQR(url, qrContainer);
-
-      output.style.display = 'block';
-
-      showFeedback('¡Mensaje enviado! Tu dedicatoria ya está en el aire 🚀');
-    });
-
-    function showFeedback(msg) {
-      feedbackMsg.textContent = msg;
+    function showFeedback(message) {
+      feedbackMsg.textContent = message;
       feedbackMsg.classList.add('show');
       setTimeout(() => {
         feedbackMsg.classList.remove('show');
-      }, 4000);
+      }, 2200);
     }
 
-    function generateCustomQR(url, container) {
-      container.innerHTML = ''; // limpio container
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const to = document.getElementById('to').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const from = document.getElementById('from').value.trim();
 
-      const canvas = document.createElement('canvas');
-      container.appendChild(canvas);
+      if (!message) {
+        showFeedback('El mensaje es obligatorio');
+        return;
+      }
 
-      QRCode.toCanvas(canvas, url, { 
-        width: 180,
-        margin: 2,
-        color: {
-          dark: '#7c59c9',
-          light: '#f2eefa'
-        }
-      }, error => {
-        if (error) {
-          console.error(error);
+      // Construir URL con parámetros
+      const params = new URLSearchParams();
+      if (to) params.set('to', to);
+      params.set('message', message);
+      if (from) params.set('from', from);
+
+      const baseUrl = window.location.origin + window.location.pathname;
+      const url = baseUrl + '?' + params.toString();
+
+      // Mostrar QR
+      qrContainer.innerHTML = '';
+      QRCode.toCanvas(qrContainer, url, { width: 160 }, err => {
+        if (err) {
+          console.error(err);
+          showFeedback('Error generando el QR');
           return;
         }
-
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.src = 'gatito.png'; // imagen gatito (40x40 px aprox)
-        img.onload = () => {
-          const size = 40;
-          // Dibuja el gatito centrado sobre el QR
-          const x = (canvas.width / 2) - (size / 2);
-          const y = (canvas.height / 2) - (size / 2);
-          ctx.drawImage(img, x, y, size, size);
-        };
+        output.style.display = 'block';
+        dedicationLink.href = url;
+        dedicationLink.textContent = url;
+        window.history.replaceState(null, '', url);
+        form.style.display = 'none';
       });
-    }
-
-    // Cuando hay datos en URL, mostrar dedicatoria
-    window.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      const d = params.get('d');
-
-      if (d) {
-        try {
-          const data = decodeDedication(d);
-
-          document.body.innerHTML = `
-            <div class="dedication-container" role="main">
-              <h1>Para${data.to ? ' ' + escapeHtml(data.to) : ''}</h1>
-              <p class="message">${escapeHtml(data.message).replace(/\n/g, '<br>')}</p>
-              <p class="signature">- ${escapeHtml(data.from) || 'Alguien especial'}</p>
-            </div>
-            <a href="${window.location.origin}${window.location.pathname}" class="back-link" aria-label="Volver al formulario">← Hacer otra dedicatoria</a>
-          `;
-
-          // Easter egg imagen
-          if ((data.from || '').toLowerCase().includes('cele estuvo aqui')) {
-            showEasterEgg();
-          }
-        } catch {
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
-      }
     });
 
-    function showEasterEgg() {
-      const easterEggLink = document.createElement('a');
-      easterEggLink.href = 'https://www.instagram.com/dice.cele_sketch/';
-      easterEggLink.target = '_blank';
-      easterEggLink.rel = 'noopener noreferrer';
-      easterEggLink.id = 'easterEggLink';
+    backLink.addEventListener('click', e => {
+      e.preventDefault();
+      dedicationDisplay.style.display = 'none';
+      form.style.display = 'flex';
+      output.style.display = 'none';
+      window.history.replaceState(null, '', window.location.pathname);
+    });
 
-      const img = document.createElement('img');
-      img.src = 'cele.png';
-      img.alt = 'Cele está aquí';
-      img.id = 'easterEggImg';
-
-      easterEggLink.appendChild(img);
-      document.body.appendChild(easterEggLink);
-      easterEggLink.style.display = 'block';
+    // Si se abre con parámetros, mostrar dedicatoria
+    function getParams() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return {
+        to: urlParams.get('to'),
+        message: urlParams.get('message'),
+        from: urlParams.get('from')
+      };
     }
 
-    function escapeHtml(text) {
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    function showDedication(to, message, from) {
+      let text = '';
+      if (to) text += `Para: ${to}\n\n`;
+      text += message;
+      if (from) text += `\n\nAtentamente: ${from}`;
+
+      displayMessage.textContent = text;
+      displaySignature.textContent = '';
+      dedicationDisplay.style.display = 'block';
+      form.style.display = 'none';
+      output.style.display = 'none';
+      window.history.replaceState(null, '', window.location.href);
+      dedicationDisplay.focus();
     }
+
+    // Mostrar dedicatoria si hay mensaje en URL
+    window.addEventListener('load', () => {
+      const { to, message, from } = getParams();
+      if (message) {
+        showDedication(to, message, from);
+      }
+    });
   </script>
 </body>
 </html>
+
 
 
 
