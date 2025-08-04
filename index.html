@@ -2,305 +2,296 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Carta para Conejo Olimpico</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cartas Secretas ✉️</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Caveat&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Caveat', cursive;
-      background: #ff8ac1;
-      margin: 0; padding: 0;
+      background: linear-gradient(to bottom, #ffe3f1, #ffd3e3);
+      color: #3a2c2c;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
-      color: #333;
-    }
-    header {
-      background-color: #ff69b4;
-      width: 100%;
       padding: 1rem;
-      color: white;
-      font-weight: bold;
-      font-size: 2rem;
+    }
+
+    header {
       text-align: center;
-    }
-    #perfil {
-      background: #fff0f6;
-      padding: 1rem 2rem;
-      border-radius: 15px;
-      margin: 1rem 0;
-      box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
-      max-width: 400px;
-      width: 90%;
-    }
-    #perfil input, #perfil textarea {
-      font-family: 'Caveat', cursive;
-      font-size: 1.4rem;
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      background-color: #ff69b4;
+      color: white;
       width: 100%;
-      padding: 0.3rem 0.6rem;
+      padding: 1rem 0;
+      border-radius: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    aside, main {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      flex: 1;
+      min-width: 300px;
+    }
+
+    h2 {
       margin-bottom: 0.5rem;
-      border: 2px solid #ff69b4;
-      border-radius: 12px;
-      resize: none;
+      font-size: 1.6rem;
     }
-    #perfil textarea {
-      height: 8rem;
-    }
-    #btnBloquearNombre {
-      background-color: #ffa3d7;
-      border: none;
-      padding: 0.3rem 0.7rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      margin-bottom: 0.7rem;
-    }
-    #btnBloquearNombre:hover {
-      background-color: #ff69b4;
-      color: white;
-    }
-    #enviarCarta {
-      background-color: #ff69b4;
-      color: white;
-      font-size: 1.5rem;
-      border: none;
-      border-radius: 15px;
-      padding: 0.5rem 1.2rem;
-      cursor: pointer;
+
+    input, textarea, button {
+      font-family: 'Caveat', cursive;
+      font-size: 1.2rem;
       width: 100%;
-      margin-top: 0.5rem;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border: 2px solid #ff69b4;
+      border-radius: 0.8rem;
     }
-    #enviarCarta:disabled {
-      background-color: #ffb6c1;
+
+    button {
+      background-color: #ff69b4;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:disabled {
+      background-color: #ffa9d1;
       cursor: not-allowed;
     }
-    #cartas, #usuarios {
-      background: white;
-      max-width: 600px;
-      width: 90%;
-      margin-bottom: 2rem;
-      border-radius: 15px;
-      padding: 1rem;
-      box-shadow: 0 0 20px rgba(255, 105, 180, 0.4);
-    }
+
     .carta {
-      border: 2px solid #ff69b4;
-      border-radius: 10px;
-      padding: 0.8rem 1rem;
+      background: #fff9fc;
+      padding: 1rem;
+      border-left: 5px solid #ff69b4;
       margin-bottom: 1rem;
-      font-size: 1.3rem;
+      border-radius: 0.5rem;
       white-space: pre-wrap;
     }
-    #msg-cambio-nombre {
-      font-size: 0.85rem;
-      color: #a12c62;
-      min-height: 1.2rem;
-      margin-bottom: 0.4rem;
+
+    .sobre {
+      width: 100px;
+      height: 60px;
+      background: #ffb6c1;
+      margin: 1rem auto;
+      border-radius: 5px 5px 15px 15px;
+      position: relative;
+    }
+
+    .sobre::before, .sobre::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-style: solid;
+    }
+
+    .sobre::before {
+      border-width: 30px 50px 0 50px;
+      border-color: #ff69b4 transparent transparent transparent;
+      top: 0;
+      left: 0;
+    }
+
+    .bloqueo-msg {
+      font-size: 0.9rem;
+      color: #a8325a;
+      margin-bottom: 0.3rem;
+      min-height: 1rem;
+    }
+
+    .usuario {
+      font-weight: bold;
+      color: #c2185b;
+    }
+
+    .conectado {
+      font-size: 0.95rem;
+      color: #444;
+      margin-bottom: 0.3rem;
+    }
+
+    .likes {
+      color: #e91e63;
+      cursor: pointer;
+      font-size: 1.2rem;
+      margin-top: 0.3rem;
+    }
+
+    .likes:hover {
+      transform: scale(1.1);
     }
   </style>
 </head>
 <body>
+  <header>Cartas Secretas ✉️</header>
 
-<header>Carta para Conejo Olimpico 🐇🏅</header>
+  <div class="container">
+    <aside>
+      <h2>Tu Perfil</h2>
+      <input type="text" id="nombreUsuario" placeholder="Tu nombre" maxlength="20">
+      <button id="btnBloquear">🔒 Bloquear nombre</button>
+      <div class="bloqueo-msg" id="msgBloqueo"></div>
 
-<section id="perfil">
-  <label for="nombreUsuario">Tu nombre (cambios cada 7 días):</label>
-  <input type="text" id="nombreUsuario" placeholder="Poné tu nombre" maxlength="20" />
-  <button id="btnBloquearNombre" type="button">🔒 Bloquear nombre</button>
-  <small id="msg-cambio-nombre"></small>
+      <h2>Usuarios conectados</h2>
+      <div id="usuariosConectados"></div>
+    </aside>
 
-  <label for="destinatario">Destinatario:</label>
-  <input type="text" id="destinatario" placeholder="¿Para quién es esta carta?" maxlength="30" />
+    <main>
+      <div class="sobre"></div>
 
-  <label for="mensaje">Mensaje:</label>
-  <textarea id="mensaje" placeholder="Escribí tu carta aquí..."></textarea>
+      <h2>Enviar una carta</h2>
+      <input type="text" id="destinatario" placeholder="@usuario">
+      <textarea id="mensaje" placeholder="Escribí tu mensaje..."></textarea>
+      <button id="btnEnviar" disabled>Enviar carta</button>
 
-  <button id="enviarCarta" disabled>Enviar carta 📝</button>
-</section>
+      <h2>Cartas enviadas</h2>
+      <div id="cartasContainer"></div>
+    </main>
+  </div>
 
-<section id="cartas">
-  <h2>Cartas enviadas</h2>
-  <div id="listaCartas"></div>
-</section>
+  <script>
+    const nombreInput = document.getElementById('nombreUsuario');
+    const destinatarioInput = document.getElementById('destinatario');
+    const mensajeInput = document.getElementById('mensaje');
+    const btnEnviar = document.getElementById('btnEnviar');
+    const cartasContainer = document.getElementById('cartasContainer');
+    const usuariosConectados = document.getElementById('usuariosConectados');
+    const btnBloquear = document.getElementById('btnBloquear');
+    const msgBloqueo = document.getElementById('msgBloqueo');
 
-<section id="usuarios">
-  <h2>Usuarios conectados</h2>
-  <ul id="usuariosConectadosList"></ul>
-</section>
+    const LS_NOMBRE = 'nombreUsuario';
+    const LS_FECHA_BLOQUEO = 'fechaBloqueo';
+    const LS_CARTAS = 'cartas';
+    const LS_BLOQUEADO = 'bloqueado';
 
-<script>
-  const nombreInput = document.getElementById('nombreUsuario');
-  const destinatarioInput = document.getElementById('destinatario');
-  const mensajeInput = document.getElementById('mensaje');
-  const enviarBtn = document.getElementById('enviarCarta');
-  const listaCartas = document.getElementById('listaCartas');
-  const msgCambioNombre = document.getElementById('msg-cambio-nombre');
-  const btnBloquearNombre = document.getElementById('btnBloquearNombre');
-  const usuariosList = document.getElementById('usuariosConectadosList');
+    let nombreBloqueado = localStorage.getItem(LS_BLOQUEADO) === 'true';
 
-  const LS_NOMBRE = 'nombreUsuario';
-  const LS_FECHA_CAMBIO = 'fechaCambioNombre';
-  const LS_USUARIOS_CONECTADOS = 'usuariosConectados';
-  const LS_CARTAS = 'cartas';
+    const usuarios = ['conejo', 'lucas', 'valentina', 'sofia', 'andres'];
 
-  let nombreBloqueado = localStorage.getItem('nombreBloqueado') === 'true';
-  const idUsuario = crypto.randomUUID();
+    function cargarNombre() {
+      const nombre = localStorage.getItem(LS_NOMBRE) || '';
+      nombreInput.value = nombre;
+    }
 
-  function cargarNombre() {
-    const nombre = localStorage.getItem(LS_NOMBRE) || '';
-    const fechaCambioStr = localStorage.getItem(LS_FECHA_CAMBIO);
-    if (!fechaCambioStr) {
-      localStorage.setItem(LS_FECHA_CAMBIO, new Date().toISOString());
-    } else {
-      const fechaCambio = new Date(fechaCambioStr);
-      const hoy = new Date();
-      const diff = Math.floor((hoy - fechaCambio) / (1000 * 60 * 60 * 24));
-      if (diff >= 7) {
-        nombreBloqueado = false;
-        localStorage.setItem('nombreBloqueado', 'false');
+    function bloquearNombre() {
+      const nombre = nombreInput.value.trim();
+      if (!nombre) return alert('Poné tu nombre primero.');
+      nombreBloqueado = true;
+      localStorage.setItem(LS_NOMBRE, nombre);
+      localStorage.setItem(LS_FECHA_BLOQUEO, new Date().toISOString());
+      localStorage.setItem(LS_BLOQUEADO, 'true');
+      actualizarBloqueo();
+    }
+
+    function actualizarBloqueo() {
+      nombreInput.disabled = nombreBloqueado;
+      btnEnviar.disabled = nombreBloqueado || !validarInputs();
+      btnBloquear.textContent = nombreBloqueado ? '🔓 Desbloquear (en 7 días)' : '🔒 Bloquear nombre';
+      if (nombreBloqueado) {
+        const fecha = new Date(localStorage.getItem(LS_FECHA_BLOQUEO));
+        const hoy = new Date();
+        const diasPasados = Math.floor((hoy - fecha) / (1000 * 60 * 60 * 24));
+        if (diasPasados >= 7) {
+          nombreBloqueado = false;
+          localStorage.setItem(LS_BLOQUEADO, 'false');
+        } else {
+          msgBloqueo.textContent = `Nombre bloqueado por ${7 - diasPasados} día(s).`;
+        }
+      } else {
+        msgBloqueo.textContent = '';
       }
     }
-    nombreInput.value = nombre;
-  }
 
-  function validarYGuardarNombre() {
-    const nombre = nombreInput.value.trim();
-    if (!nombre) {
-      msgCambioNombre.textContent = 'El nombre no puede estar vacío.';
-      return false;
+    function mostrarUsuarios() {
+      usuariosConectados.innerHTML = '';
+      usuarios.forEach(u => {
+        const div = document.createElement('div');
+        div.className = 'conectado';
+        div.textContent = `@${u}`;
+        usuariosConectados.appendChild(div);
+      });
     }
-    if (nombreBloqueado) {
-      msgCambioNombre.textContent = 'El nombre está bloqueado.';
-      return false;
+
+    function validarInputs() {
+      return mensajeInput.value.trim() && destinatarioInput.value.trim() && nombreInput.value.trim();
     }
-    const fechaCambioStr = localStorage.getItem(LS_FECHA_CAMBIO);
-    if (fechaCambioStr) {
-      const fechaCambio = new Date(fechaCambioStr);
-      const hoy = new Date();
-      const diff = Math.floor((hoy - fechaCambio) / (1000 * 60 * 60 * 24));
-      if (diff < 7) {
-        msgCambioNombre.textContent = `Esperá ${7 - diff} día(s) para cambiar el nombre.`;
-        nombreInput.value = localStorage.getItem(LS_NOMBRE) || '';
-        return false;
-      }
+
+    function guardarCarta() {
+      const remitente = nombreInput.value.trim();
+      const destinatario = destinatarioInput.value.trim();
+      const mensaje = mensajeInput.value.trim();
+
+      const cartas = JSON.parse(localStorage.getItem(LS_CARTAS) || '[]');
+      cartas.unshift({ remitente, destinatario, mensaje });
+      localStorage.setItem(LS_CARTAS, JSON.stringify(cartas));
     }
-    localStorage.setItem(LS_NOMBRE, nombre);
-    localStorage.setItem(LS_FECHA_CAMBIO, new Date().toISOString());
-    msgCambioNombre.textContent = '';
-    return true;
-  }
 
-  function validarInputs() {
-    const valido = mensajeInput.value.trim() && destinatarioInput.value.trim() && nombreInput.value.trim();
-    enviarBtn.disabled = nombreBloqueado || !valido;
-  }
-
-  function actualizarEstadoBloqueo() {
-    nombreInput.disabled = nombreBloqueado;
-    enviarBtn.disabled = nombreBloqueado || !validarInputsParaBoton();
-    btnBloquearNombre.textContent = nombreBloqueado ? '🔓 Desbloquear nombre' : '🔒 Bloquear nombre';
-  }
-
-  function validarInputsParaBoton() {
-    return mensajeInput.value.trim() && destinatarioInput.value.trim() && nombreInput.value.trim();
-  }
-
-  function guardarCarta(destinatario, remitente, mensaje) {
-    const cartas = JSON.parse(localStorage.getItem(LS_CARTAS) || '[]');
-    cartas.unshift({ destinatario, remitente, mensaje });
-    localStorage.setItem(LS_CARTAS, JSON.stringify(cartas));
-  }
-
-  function cargarCartas() {
-    const cartas = JSON.parse(localStorage.getItem(LS_CARTAS) || '[]');
-    const miNombre = localStorage.getItem(LS_NOMBRE);
-    listaCartas.innerHTML = '';
-    if (cartas.length === 0) {
-      listaCartas.textContent = 'No hay cartas enviadas todavía.';
-      return;
-    }
-    cartas.forEach(carta => {
-      if (carta.destinatario === '@' + miNombre || !carta.destinatario.startsWith('@')) {
+    function renderizarCartas() {
+      const cartas = JSON.parse(localStorage.getItem(LS_CARTAS) || '[]');
+      cartasContainer.innerHTML = '';
+      cartas.forEach(({ remitente, destinatario, mensaje }, i) => {
         const div = document.createElement('div');
         div.className = 'carta';
-        div.textContent = `Para: ${carta.destinatario}\nDe: ${carta.remitente}\n\n${carta.mensaje}`;
-        listaCartas.appendChild(div);
-      }
-    });
-  }
-
-  function conectarUsuario(nombre) {
-    if (!nombre) return;
-    const ahora = Date.now();
-    let usuarios = JSON.parse(localStorage.getItem(LS_USUARIOS_CONECTADOS) || '[]');
-    usuarios = usuarios.filter(u => ahora - u.timestamp < 300000);
-    const ya = usuarios.find(u => u.id === idUsuario);
-    if (ya) {
-      ya.timestamp = ahora;
-      ya.nombre = nombre;
-    } else {
-      usuarios.push({ id: idUsuario, nombre, timestamp: ahora });
+        div.innerHTML = `
+          <div><span class="usuario">Para:</span> ${destinatario}</div>
+          <div><span class="usuario">De:</span> ${remitente}</div>
+          <p>${mensaje}</p>
+        `;
+        cartasContainer.appendChild(div);
+      });
     }
-    localStorage.setItem(LS_USUARIOS_CONECTADOS, JSON.stringify(usuarios));
-    mostrarUsuarios(usuarios);
-  }
 
-  function mostrarUsuarios(lista) {
-    usuariosList.innerHTML = '';
-    lista.forEach(u => {
-      const li = document.createElement('li');
-      li.textContent = u.nombre;
-      usuariosList.appendChild(li);
+    nombreInput.addEventListener('input', () => {
+      btnEnviar.disabled = !validarInputs();
     });
-  }
 
-  // Eventos
-  nombreInput.addEventListener('change', () => {
-    if (!nombreBloqueado) {
-      validarYGuardarNombre();
-      validarInputs();
-    } else {
-      msgCambioNombre.textContent = 'El nombre está bloqueado.';
-      nombreInput.value = localStorage.getItem(LS_NOMBRE) || '';
-    }
-  });
+    destinatarioInput.addEventListener('input', () => {
+      btnEnviar.disabled = !validarInputs();
+    });
 
-  destinatarioInput.addEventListener('input', validarInputs);
-  mensajeInput.addEventListener('input', validarInputs);
+    mensajeInput.addEventListener('input', () => {
+      btnEnviar.disabled = !validarInputs();
+    });
 
-  btnBloquearNombre.addEventListener('click', () => {
-    nombreBloqueado = !nombreBloqueado;
-    localStorage.setItem('nombreBloqueado', nombreBloqueado.toString());
-    actualizarEstadoBloqueo();
-  });
+    btnEnviar.addEventListener('click', () => {
+      guardarCarta();
+      mensajeInput.value = '';
+      destinatarioInput.value = '';
+      renderizarCartas();
+      btnEnviar.disabled = true;
+    });
 
-  enviarBtn.addEventListener('click', () => {
-    if (enviarBtn.disabled) return;
-    const remitente = nombreInput.value.trim();
-    const destinatario = destinatarioInput.value.trim();
-    const mensaje = mensajeInput.value.trim();
-    guardarCarta(destinatario, remitente, mensaje);
-    destinatarioInput.value = '';
-    mensajeInput.value = '';
-    enviarBtn.disabled = true;
-    cargarCartas();
-  });
+    btnBloquear.addEventListener('click', bloquearNombre);
 
-  setInterval(() => {
-    const nombre = localStorage.getItem(LS_NOMBRE);
-    if (nombre) conectarUsuario(nombre);
-  }, 30000);
-
-  window.addEventListener('load', () => {
-    cargarNombre();
-    actualizarEstadoBloqueo();
-    cargarCartas();
-    validarInputs();
-    const nombre = localStorage.getItem(LS_NOMBRE);
-    if (nombre) conectarUsuario(nombre);
-  });
-</script>
-
+    window.addEventListener('load', () => {
+      cargarNombre();
+      actualizarBloqueo();
+      mostrarUsuarios();
+      renderizarCartas();
+    });
+  </script>
 </body>
 </html>
+
