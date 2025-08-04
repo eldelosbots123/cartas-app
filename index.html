@@ -155,8 +155,8 @@
       box-shadow: 0 4px 14px rgba(106,75,154,0.3);
       user-select: none;
       pointer-events: auto;
-      background: transparent;
       display: block;
+      background: transparent;
     }
   </style>
 </head>
@@ -177,10 +177,6 @@
     <div class="qr" id="qr"></div>
   </div>
 
-  <a id="easterEggLink" href="https://www.instagram.com/dice.cele_sketch/" target="_blank" rel="noopener noreferrer" aria-label="Ir al Instagram de Cele">
-    <img id="easterEggImg" src="cele.png" alt="Cele está aquí" />
-  </a>
-
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
     function encodeDedication(data) {
@@ -196,7 +192,6 @@
     const output = document.getElementById('output');
     const link = document.getElementById('link');
     const qrContainer = document.getElementById('qr');
-    const easterEggLink = document.getElementById('easterEggLink');
 
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -210,7 +205,9 @@
         return;
       }
 
-      easterEggLink.style.display = 'none';
+      // Ocultar easter egg si estaba visible
+      const existingEgg = document.getElementById('easterEggLink');
+      if (existingEgg) existingEgg.style.display = 'none';
 
       const encoded = encodeDedication({ to, message, from });
       const url = `${window.location.origin}${window.location.pathname}?d=${encoded}`;
@@ -229,25 +226,57 @@
     if (params.has('d')) {
       try {
         const data = decodeDedication(params.get('d'));
-        
-        document.body.innerHTML = `
-          <div class="dedication-container" role="main" tabindex="0">
-            <h1>💌 Para: ${data.to || 'Alguien especial'}</h1>
-            <p class="message">${data.message}</p>
-            <p class="signature">— ${data.from || 'Anónimo'}</p>
-            <a href="/" class="back-link" aria-label="Volver para escribir tu propia dedicatoria">Escribe tu propia dedicatoria</a>
-          </div>
-          <a id="easterEggLink" href="https://www.instagram.com/dice.cele_sketch/" target="_blank" rel="noopener noreferrer" aria-label="Ir al Instagram de Cele" style="position: fixed; bottom: 12px; right: 12px; z-index: 9999; display: none;">
-            <img id="easterEggImg" src="cele.png" alt="Cele está aquí" style="width: 120px; border-radius: 12px; box-shadow: 0 4px 14px rgba(106,75,154,0.3); user-select: none; pointer-events: auto;" />
-          </a>
+
+        const dedicationContainer = document.createElement('div');
+        dedicationContainer.className = 'dedication-container';
+        dedicationContainer.setAttribute('role', 'main');
+        dedicationContainer.tabIndex = 0;
+
+        dedicationContainer.innerHTML = `
+          <h1>💌 Para: ${data.to || 'Alguien especial'}</h1>
+          <p class="message">${data.message}</p>
+          <p class="signature">— ${data.from || 'Anónimo'}</p>
+          <a href="/" class="back-link" aria-label="Volver para escribir tu propia dedicatoria">Escribe tu propia dedicatoria</a>
         `;
 
-        const easterEggLinkPage = document.getElementById('easterEggLink');
+        document.body.innerHTML = '';
+        document.body.appendChild(dedicationContainer);
 
+        const easterEggLink = document.createElement('a');
+        easterEggLink.href = 'https://www.instagram.com/dice.cele_sketch/';
+        easterEggLink.target = '_blank';
+        easterEggLink.rel = 'noopener noreferrer';
+        easterEggLink.ariaLabel = 'Ir al Instagram de Cele';
+        easterEggLink.id = 'easterEggLink';
+        Object.assign(easterEggLink.style, {
+          position: 'fixed',
+          bottom: '12px',
+          right: '12px',
+          zIndex: '9999',
+          display: 'none',
+          cursor: 'pointer',
+        });
+
+        const img = document.createElement('img');
+        img.src = 'cele.png';
+        img.alt = 'Cele está aquí';
+        img.id = 'easterEggImg';
+        Object.assign(img.style, {
+          width: '120px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 14px rgba(106,75,154,0.3)',
+          userSelect: 'none',
+          pointerEvents: 'auto',
+          display: 'block',
+          background: 'transparent',
+        });
+
+        easterEggLink.appendChild(img);
+        document.body.appendChild(easterEggLink);
+
+        // Mostrar easter egg solo si "Atentamente" contiene "cele estuvo aqui" (case insensitive)
         if ((data.from || '').toLowerCase().includes('cele estuvo aqui')) {
-          easterEggLinkPage.style.display = 'block';
-        } else {
-          easterEggLinkPage.style.display = 'none';
+          easterEggLink.style.display = 'block';
         }
 
       } catch {
@@ -257,6 +286,7 @@
   </script>
 </body>
 </html>
+
 
 
 
