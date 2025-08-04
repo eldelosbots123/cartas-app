@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cartas Secretas - El papel y el sobre</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Cartas Secretas 📬</h1>
+
+  <div class="main-container">
+
+    <aside class="sidebar">
+      <section id="perfil">
+        <h2>Tu Perfil</h2>
+        <input type="text" id="nombreUsuario" placeholder="Poné tu nombre (cambios cada 7 días)" maxlength="20" />
+        <small id="msg-cambio-nombre"></small>
+      </section>
+
+      <section id="historialCartas">
+        <h2>Historial de Cartas</h2>
+        <div id="misCartitas">
+          <p>No enviaste cartas aún.</p>
+        </div>
+      </section>
+
+      <section id="conectados">
+        <h2>Usuarios conectados</h2>
+        <ul id="listaConectados"><li>Cargando...</li></ul>
+      </section>
+    </aside>
+
+    <main class="content">
+      <section id="escribirCarta" class="carta-papel">
+        <textarea id="mensaje" placeholder="Escribí tu carta aquí..."></textarea>
+        <input type="text" id="destinatario" placeholder="Destinatario (poné @nick para alguien)" maxlength="20" />
+        <button id="enviarBtn" disabled>Enviar Carta</button>
+        <p id="confirmacion"></p>
+      </section>
+
+      <section id="buzon">
+        <h2>Tu Buzón <span id="sobreAnimacion" class="sobre-cerrado" title="Tu buzón de cartas"></span></h2>
+        <div id="buzonCartitas">
+          <p>No hay cartas en tu buzón.</p>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
