@@ -272,8 +272,7 @@
       link.href = url;
       link.textContent = url;
 
-      qrContainer.innerHTML = '';
-      QRCode.toCanvas(qrContainer, url, { width: 180, margin: 2, color: { dark: '#7c59c9', light: '#f2eefa' } });
+      generateCustomQR(url, qrContainer);
 
       output.style.display = 'block';
 
@@ -286,6 +285,38 @@
       setTimeout(() => {
         feedbackMsg.classList.remove('show');
       }, 4000);
+    }
+
+    function generateCustomQR(url, container) {
+      container.innerHTML = ''; // limpio container
+
+      const canvas = document.createElement('canvas');
+      container.appendChild(canvas);
+
+      QRCode.toCanvas(canvas, url, { 
+        width: 180,
+        margin: 2,
+        color: {
+          dark: '#7c59c9',
+          light: '#f2eefa'
+        }
+      }, error => {
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.src = 'gatito.png'; // imagen gatito (40x40 px aprox)
+        img.onload = () => {
+          const size = 40;
+          // Dibuja el gatito centrado sobre el QR
+          const x = (canvas.width / 2) - (size / 2);
+          const y = (canvas.height / 2) - (size / 2);
+          ctx.drawImage(img, x, y, size, size);
+        };
+      });
     }
 
     // Cuando hay datos en URL, mostrar dedicatoria
@@ -307,7 +338,7 @@
           `;
 
           // Easter egg imagen
-          if ((data.from || '').toLowerCase().includes('cele paso por aqui')) {
+          if ((data.from || '').toLowerCase().includes('cele estuvo aqui')) {
             showEasterEgg();
           }
         } catch {
@@ -344,6 +375,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
