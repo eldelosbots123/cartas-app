@@ -2,296 +2,264 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cartas Secretas ✉️</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Te lo diría, pero…</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Pacifico&display=swap" rel="stylesheet" />
+  
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Caveat&display=swap');
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root {
+      --lila-oscuro: #6a4b9a;
+      --lila-claro: #bfa2db;
+      --lila-muy-claro: #f3ebff;
+      --texto-principal: #3a1c5a;
+      --rosa: #d16ca3;
+      --rosa-oscuro: #a4486e;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+    
     body {
-      font-family: 'Caveat', cursive;
-      background: linear-gradient(to bottom, #ffe3f1, #ffd3e3);
-      color: #3a2c2c;
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: var(--lila-muy-claro);
+      color: var(--texto-principal);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1rem;
+      padding: 2rem 1rem;
     }
-
-    header {
+    
+    h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 2.8rem;
+      margin-bottom: 0.3rem;
+      color: var(--lila-oscuro);
       text-align: center;
-      font-size: 2.5rem;
-      font-weight: bold;
-      margin-bottom: 1rem;
-      background-color: #ff69b4;
-      color: white;
-      width: 100%;
-      padding: 1rem 0;
-      border-radius: 1rem;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2rem;
-      max-width: 1200px;
-      width: 100%;
+    p.subtitle {
+      color: var(--lila-oscuro);
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      max-width: 320px;
     }
-
-    aside, main {
+    
+    form {
       background: white;
-      border-radius: 1rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      padding: 1rem;
-      flex: 1;
-      min-width: 300px;
-    }
-
-    h2 {
-      margin-bottom: 0.5rem;
-      font-size: 1.6rem;
-    }
-
-    input, textarea, button {
-      font-family: 'Caveat', cursive;
-      font-size: 1.2rem;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(106, 75, 154, 0.2);
+      max-width: 420px;
       width: 100%;
-      margin: 0.5rem 0;
-      padding: 0.5rem;
-      border: 2px solid #ff69b4;
-      border-radius: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
     }
 
+    input[type="text"], textarea {
+      font-size: 1rem;
+      padding: 0.9rem 1rem;
+      border-radius: 8px;
+      border: 1.8px solid var(--lila-claro);
+      transition: border-color 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+    input[type="text"]:focus, textarea:focus {
+      border-color: var(--lila-oscuro);
+      outline: none;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
     button {
-      background-color: #ff69b4;
+      background: var(--lila-oscuro);
       color: white;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 5px 15px rgba(106, 75, 154, 0.3);
+    }
+    button:hover {
+      background: var(--rosa);
+      box-shadow: 0 8px 20px rgba(209, 108, 163, 0.5);
     }
 
-    button:disabled {
-      background-color: #ffa9d1;
-      cursor: not-allowed;
+    .output {
+      margin-top: 2.8rem;
+      background: white;
+      padding: 1.8rem;
+      border-radius: 12px;
+      max-width: 420px;
+      box-shadow: 0 5px 15px rgba(106, 75, 154, 0.15);
+      text-align: center;
     }
 
-    .carta {
-      background: #fff9fc;
-      padding: 1rem;
-      border-left: 5px solid #ff69b4;
+    .output h2 {
+      color: var(--lila-oscuro);
       margin-bottom: 1rem;
-      border-radius: 0.5rem;
-      white-space: pre-wrap;
     }
 
-    .sobre {
-      width: 100px;
-      height: 60px;
-      background: #ffb6c1;
-      margin: 1rem auto;
-      border-radius: 5px 5px 15px 15px;
-      position: relative;
+    .output a {
+      color: var(--rosa-oscuro);
+      font-weight: 600;
+      word-break: break-all;
+      display: block;
+      margin-bottom: 1rem;
+      text-decoration: none;
+      font-size: 1.1rem;
     }
 
-    .sobre::before, .sobre::after {
-      content: '';
-      position: absolute;
-      width: 0;
-      height: 0;
-      border-style: solid;
+    .output a:hover {
+      text-decoration: underline;
     }
 
-    .sobre::before {
-      border-width: 30px 50px 0 50px;
-      border-color: #ff69b4 transparent transparent transparent;
-      top: 0;
-      left: 0;
+    .qr canvas {
+      margin: 0 auto;
+      display: block;
+      max-width: 180px;
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(106, 75, 154, 0.2);
     }
 
-    .bloqueo-msg {
-      font-size: 0.9rem;
-      color: #a8325a;
-      margin-bottom: 0.3rem;
-      min-height: 1rem;
-    }
-
-    .usuario {
-      font-weight: bold;
-      color: #c2185b;
-    }
-
-    .conectado {
-      font-size: 0.95rem;
-      color: #444;
-      margin-bottom: 0.3rem;
-    }
-
-    .likes {
-      color: #e91e63;
-      cursor: pointer;
+    /* Página de dedicatoria */
+    .dedication-container {
+      background: white;
+      max-width: 480px;
+      margin: 3rem auto 2rem;
+      border-radius: 14px;
+      padding: 2rem 2.4rem;
+      box-shadow: 0 7px 22px rgba(106, 75, 154, 0.25);
+      text-align: center;
       font-size: 1.2rem;
-      margin-top: 0.3rem;
+      line-height: 1.5;
+      font-family: 'Poppins', sans-serif;
+      color: var(--texto-principal);
+    }
+    .dedication-container h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 2.5rem;
+      color: var(--lila-oscuro);
+      margin-bottom: 1rem;
+    }
+    .dedication-container p.message {
+      white-space: pre-wrap;
+      margin-bottom: 2rem;
+      font-size: 1.15rem;
+    }
+    .dedication-container p.signature {
+      font-style: italic;
+      color: var(--rosa-oscuro);
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+    .dedication-container a.back-link {
+      color: var(--lila-oscuro);
+      font-weight: 600;
+      font-size: 1.1rem;
+      text-decoration: none;
+      border: 2px solid var(--lila-oscuro);
+      padding: 0.4rem 1.2rem;
+      border-radius: 8px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      display: inline-block;
+    }
+    .dedication-container a.back-link:hover {
+      background-color: var(--lila-oscuro);
+      color: white;
     }
 
-    .likes:hover {
-      transform: scale(1.1);
+    /* Responsive */
+    @media (max-width: 480px) {
+      body {
+        padding: 1.5rem 1rem;
+      }
+      form, .output, .dedication-container {
+        width: 100%;
+        padding: 1.5rem;
+      }
+      h1 {
+        font-size: 2.2rem;
+      }
     }
   </style>
 </head>
 <body>
-  <header>Cartas Secretas ✉️</header>
+  <h1>Te lo diría, pero…</h1>
+  <p class="subtitle">¿Quieres dedicar algo pero no te atreves? Aquí puedes hacerlo con un link y QR para compartir.</p>
 
-  <div class="container">
-    <aside>
-      <h2>Tu Perfil</h2>
-      <input type="text" id="nombreUsuario" placeholder="Tu nombre" maxlength="20">
-      <button id="btnBloquear">🔒 Bloquear nombre</button>
-      <div class="bloqueo-msg" id="msgBloqueo"></div>
+  <form id="dedicationForm" aria-label="Formulario para crear dedicatoria">
+    <input type="text" id="to" placeholder="Para... (opcional)" aria-label="Para" />
+    <textarea id="message" rows="5" placeholder="Tu mensaje..." required aria-required="true" aria-label="Tu mensaje"></textarea>
+    <input type="text" id="from" placeholder="¿Quieres firmar? (opcional)" aria-label="Firma" />
+    <button type="submit" aria-label="Generar dedicatoria y enlace">Generar dedicatoria</button>
+  </form>
 
-      <h2>Usuarios conectados</h2>
-      <div id="usuariosConectados"></div>
-    </aside>
-
-    <main>
-      <div class="sobre"></div>
-
-      <h2>Enviar una carta</h2>
-      <input type="text" id="destinatario" placeholder="@usuario">
-      <textarea id="mensaje" placeholder="Escribí tu mensaje..."></textarea>
-      <button id="btnEnviar" disabled>Enviar carta</button>
-
-      <h2>Cartas enviadas</h2>
-      <div id="cartasContainer"></div>
-    </main>
+  <div class="output" id="output" style="display: none;" aria-live="polite" role="region">
+    <h2>Tu enlace secreto ✨</h2>
+    <a id="link" href="#" target="_blank" rel="noopener noreferrer"></a>
+    <div class="qr" id="qr"></div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
-    const nombreInput = document.getElementById('nombreUsuario');
-    const destinatarioInput = document.getElementById('destinatario');
-    const mensajeInput = document.getElementById('mensaje');
-    const btnEnviar = document.getElementById('btnEnviar');
-    const cartasContainer = document.getElementById('cartasContainer');
-    const usuariosConectados = document.getElementById('usuariosConectados');
-    const btnBloquear = document.getElementById('btnBloquear');
-    const msgBloqueo = document.getElementById('msgBloqueo');
+    const form = document.getElementById('dedicationForm');
+    const output = document.getElementById('output');
+    const link = document.getElementById('link');
+    const qrContainer = document.getElementById('qr');
 
-    const LS_NOMBRE = 'nombreUsuario';
-    const LS_FECHA_BLOQUEO = 'fechaBloqueo';
-    const LS_CARTAS = 'cartas';
-    const LS_BLOQUEADO = 'bloqueado';
+    form.addEventListener('submit', e => {
+      e.preventDefault();
 
-    let nombreBloqueado = localStorage.getItem(LS_BLOQUEADO) === 'true';
+      const to = document.getElementById('to').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const from = document.getElementById('from').value.trim();
 
-    const usuarios = ['conejo', 'lucas', 'valentina', 'sofia', 'andres'];
-
-    function cargarNombre() {
-      const nombre = localStorage.getItem(LS_NOMBRE) || '';
-      nombreInput.value = nombre;
-    }
-
-    function bloquearNombre() {
-      const nombre = nombreInput.value.trim();
-      if (!nombre) return alert('Poné tu nombre primero.');
-      nombreBloqueado = true;
-      localStorage.setItem(LS_NOMBRE, nombre);
-      localStorage.setItem(LS_FECHA_BLOQUEO, new Date().toISOString());
-      localStorage.setItem(LS_BLOQUEADO, 'true');
-      actualizarBloqueo();
-    }
-
-    function actualizarBloqueo() {
-      nombreInput.disabled = nombreBloqueado;
-      btnEnviar.disabled = nombreBloqueado || !validarInputs();
-      btnBloquear.textContent = nombreBloqueado ? '🔓 Desbloquear (en 7 días)' : '🔒 Bloquear nombre';
-      if (nombreBloqueado) {
-        const fecha = new Date(localStorage.getItem(LS_FECHA_BLOQUEO));
-        const hoy = new Date();
-        const diasPasados = Math.floor((hoy - fecha) / (1000 * 60 * 60 * 24));
-        if (diasPasados >= 7) {
-          nombreBloqueado = false;
-          localStorage.setItem(LS_BLOQUEADO, 'false');
-        } else {
-          msgBloqueo.textContent = `Nombre bloqueado por ${7 - diasPasados} día(s).`;
-        }
-      } else {
-        msgBloqueo.textContent = '';
+      if (!message) {
+        alert('Por favor, escribe tu mensaje.');
+        return;
       }
-    }
 
-    function mostrarUsuarios() {
-      usuariosConectados.innerHTML = '';
-      usuarios.forEach(u => {
-        const div = document.createElement('div');
-        div.className = 'conectado';
-        div.textContent = `@${u}`;
-        usuariosConectados.appendChild(div);
+      const encoded = encodeURIComponent(JSON.stringify({ to, message, from }));
+      const url = `${window.location.origin}${window.location.pathname}?d=${encoded}`;
+
+      link.href = url;
+      link.textContent = url;
+      output.style.display = 'block';
+
+      qrContainer.innerHTML = '';
+      QRCode.toCanvas(document.createElement('canvas'), url, (err, canvas) => {
+        if (!err) qrContainer.appendChild(canvas);
       });
+    });
+
+    // Mostrar dedicatoria si viene por URL
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('d')) {
+      const data = JSON.parse(decodeURIComponent(params.get('d')));
+      document.body.innerHTML = `
+        <div class="dedication-container" role="main">
+          <h1>💌 Para: ${data.to || 'Alguien especial'}</h1>
+          <p class="message">${data.message}</p>
+          <p class="signature">— ${data.from || 'Anónimo'}</p>
+          <a href="/" class="back-link" aria-label="Volver para escribir tu propia dedicatoria">Escribe tu propia dedicatoria</a>
+        </div>
+      `;
     }
-
-    function validarInputs() {
-      return mensajeInput.value.trim() && destinatarioInput.value.trim() && nombreInput.value.trim();
-    }
-
-    function guardarCarta() {
-      const remitente = nombreInput.value.trim();
-      const destinatario = destinatarioInput.value.trim();
-      const mensaje = mensajeInput.value.trim();
-
-      const cartas = JSON.parse(localStorage.getItem(LS_CARTAS) || '[]');
-      cartas.unshift({ remitente, destinatario, mensaje });
-      localStorage.setItem(LS_CARTAS, JSON.stringify(cartas));
-    }
-
-    function renderizarCartas() {
-      const cartas = JSON.parse(localStorage.getItem(LS_CARTAS) || '[]');
-      cartasContainer.innerHTML = '';
-      cartas.forEach(({ remitente, destinatario, mensaje }, i) => {
-        const div = document.createElement('div');
-        div.className = 'carta';
-        div.innerHTML = `
-          <div><span class="usuario">Para:</span> ${destinatario}</div>
-          <div><span class="usuario">De:</span> ${remitente}</div>
-          <p>${mensaje}</p>
-        `;
-        cartasContainer.appendChild(div);
-      });
-    }
-
-    nombreInput.addEventListener('input', () => {
-      btnEnviar.disabled = !validarInputs();
-    });
-
-    destinatarioInput.addEventListener('input', () => {
-      btnEnviar.disabled = !validarInputs();
-    });
-
-    mensajeInput.addEventListener('input', () => {
-      btnEnviar.disabled = !validarInputs();
-    });
-
-    btnEnviar.addEventListener('click', () => {
-      guardarCarta();
-      mensajeInput.value = '';
-      destinatarioInput.value = '';
-      renderizarCartas();
-      btnEnviar.disabled = true;
-    });
-
-    btnBloquear.addEventListener('click', bloquearNombre);
-
-    window.addEventListener('load', () => {
-      cargarNombre();
-      actualizarBloqueo();
-      mostrarUsuarios();
-      renderizarCartas();
-    });
   </script>
 </body>
 </html>
+
 
