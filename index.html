@@ -167,15 +167,16 @@
     .back-link:hover, .back-link:focus {
       text-decoration: underline;
     }
-    /* Easter egg style: el logo que aparece en dedicatoria */
+    /* Easter egg style: logo fijo abajo a la derecha */
     .cele-easteregg {
-      position: absolute;
+      position: fixed;
       bottom: 16px;
       right: 16px;
       width: 90px;
       cursor: pointer;
       animation: gatoBailoteo 4s ease-in-out infinite;
       transition: transform 0.3s ease;
+      z-index: 9999;
     }
     .cele-easteregg:hover {
       transform: scale(1.2) rotate(10deg);
@@ -302,6 +303,9 @@
       output.style.display = 'block';
 
       showFeedback('¡Mensaje enviado! Tu dedicatoria ya está en el aire 🚀');
+
+      // Mostrar o ocultar logo cele abajo a la derecha
+      manageCeleEasterEgg(data.from);
     });
 
     function showFeedback(msg) {
@@ -322,10 +326,43 @@
 
       container.appendChild(canvas);
 
-      // Agregar gatito al lado del QR (aunque está en CSS como fondo, por las dudas)
+      // Agregar gatito al lado del QR (ya está en CSS)
       const cat = document.createElement('div');
       cat.classList.add('qr-gato');
       container.appendChild(cat);
+    }
+
+    function manageCeleEasterEgg(fromText) {
+      const lower = fromText.toLowerCase();
+      let existingLogo = document.querySelector('.cele-easteregg');
+      if (lower.includes('cele')) {
+        if (!existingLogo) {
+          const logo = document.createElement('a');
+          logo.href = "https://www.instagram.com/cele/";
+          logo.target = "_blank";
+          logo.rel = "noopener noreferrer";
+          logo.className = 'cele-easteregg';
+          logo.setAttribute('aria-label', 'Ir al Instagram de Cele');
+          logo.tabIndex = 0;
+          const img = document.createElement('img');
+          img.src = 'cele.png';
+          img.alt = 'Logo de Cele';
+          img.style.width = '100%';
+          img.style.height = 'auto';
+          logo.appendChild(img);
+          document.body.appendChild(logo);
+        }
+      } else {
+        if (existingLogo) {
+          existingLogo.remove();
+        }
+      }
+    }
+
+    function escapeHTML(text) {
+      const p = document.createElement('p');
+      p.textContent = text;
+      return p.innerHTML;
     }
 
     // Cuando haya parámetro d en la URL, mostrar dedicatoria
@@ -336,23 +373,14 @@
           <p class="message">${escapeHTML(data.message)}</p>
           <p class="signature">${data.from ? '- ' + escapeHTML(data.from) : ''}</p>
 
-          ${
-            data.from && data.from.toLowerCase().includes('cele')
-              ? `<a href="https://www.instagram.com/cele/" target="_blank" rel="noopener noreferrer" aria-label="Ir al Instagram de Cele">
-                  <img src="cele.png" alt="Logo de Cele" class="cele-easteregg" />
-                 </a>`
-              : ''
-          }
-
           <a href="${window.location.origin}${window.location.pathname}" class="back-link" aria-label="Volver al formulario de dedicatorias">← Volver</a>
         </div>
       `;
-    }
 
-    function escapeHTML(text) {
-      const p = document.createElement('p');
-      p.textContent = text;
-      return p.innerHTML;
+      // En la dedicatoria también mostrar el logo cele si aplica (pero ya abajo a derecha)
+      if (data.from && data.from.toLowerCase().includes('cele')) {
+        manageCeleEasterEgg(data.from);
+      }
     }
 
     // Detectar parámetro d en la URL
@@ -370,6 +398,7 @@
   </script>
 </body>
 </html>
+
 
 
 
