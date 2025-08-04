@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Te lo diría, pero…</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Pacifico&display=swap" rel="stylesheet" />
+
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -26,6 +28,7 @@
     .subtitle {
       margin-top: 0;
       margin-bottom: 2rem;
+      font-size: 1.1rem;
       font-weight: 600;
       color: #6d5cae;
       text-align: center;
@@ -106,6 +109,7 @@
       gap: 12px;
       position: relative;
     }
+    /* Gato animado al lado del QR */
     .qr-gato {
       width: 40px;
       height: 40px;
@@ -121,6 +125,49 @@
       50% { transform: translateX(10px) rotate(-3deg); }
       75% { transform: translateX(5px) rotate(3deg); }
     }
+
+    .dedication-container {
+      background: #d9cffb;
+      padding: 2rem;
+      border-radius: 16px;
+      max-width: 480px;
+      box-shadow: 0 6px 16px rgba(106,75,154,0.3);
+      color: #4b367c;
+      font-size: 1.15rem;
+      line-height: 1.5;
+      user-select: text;
+      position: relative;
+      min-height: 220px;
+    }
+    .dedication-container h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: #7c59c9;
+      text-align: center;
+    }
+    .message {
+      margin-bottom: 1.5rem;
+      white-space: pre-wrap;
+    }
+    .signature {
+      font-weight: 600;
+      text-align: right;
+      font-style: italic;
+    }
+    .back-link {
+      display: block;
+      margin-top: 2rem;
+      color: #6d5cae;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+    .back-link:hover, .back-link:focus {
+      text-decoration: underline;
+    }
+    /* Easter egg logo cele solo en la dedicatoria cuando la firma incluye 'cele' */
     .cele-easteregg {
       position: absolute;
       bottom: 12px;
@@ -135,7 +182,53 @@
     .cele-easteregg:hover {
       transform: scale(1.2) rotate(10deg);
     }
+    /* Feedback mensaje */
+    #feedbackMsg {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #7c59c9cc;
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 24px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 14px rgba(124,89,201,0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      user-select: none;
+      z-index: 10000;
+    }
+    #feedbackMsg.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    /* Mejor responsive */
     @media (max-width: 480px) {
+      body {
+        padding: 0.5rem 1rem;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      form {
+        padding: 1rem 1.5rem;
+      }
+      input[type="text"], textarea {
+        font-size: 1rem;
+        min-height: 3rem;
+        padding: 0.8rem 1rem;
+      }
+      button {
+        font-size: 1.1rem;
+        padding: 0.8rem;
+      }
+      .output {
+        font-size: 1rem;
+        padding: 1rem 1.5rem;
+      }
       .qr-gato {
         width: 30px;
         height: 30px;
@@ -144,145 +237,172 @@
   </style>
 </head>
 <body>
-
   <h1>Te lo diría, pero…</h1>
-  <p class="subtitle">Dedicatorias cortas y bonitas para gente especial.</p>
+  <p class="subtitle">¿Quieres dedicar algo pero no te atreves? Aquí puedes hacerlo con un link y QR para compartir.</p>
 
-  <form id="dedicationForm">
-    <input type="text" id="toInput" placeholder="Para quién va" required />
-    <input type="text" id="fromInput" placeholder="De parte de" required />
-    <textarea id="messageInput" placeholder="Tu dedicatoria" rows="4" required></textarea>
-    <button type="submit">Crear dedicatoria</button>
+  <form id="dedicationForm" aria-label="Formulario para crear dedicatoria">
+    <input type="text" id="to" placeholder="Para... (opcional)" aria-label="Para" autocomplete="off" />
+    <textarea id="message" rows="5" placeholder="Tu mensaje..." required aria-required="true" aria-label="Tu mensaje" autocomplete="off"></textarea>
+    <input type="text" id="from" placeholder="Firma... (opcional)" aria-label="Firma" autocomplete="off" />
+    <button type="submit" aria-label="Generar dedicatoria y enlace">Generar dedicatoria</button>
   </form>
 
-  <div class="output" id="output" style="display:none;"></div>
-
-  <div class="qr" id="qrContainer" style="display:none;">
-    <div class="qr-gato"></div>
-    <div id="qrCode"></div>
+  <div class="output" id="output" style="display: none;" aria-live="polite" role="region">
+    <h2>Tu enlace secreto ✨</h2>
+    <a id="link" href="#" target="_blank" rel="noopener noreferrer"></a>
+    <div class="qr" id="qr"></div>
   </div>
 
-  <script>
-    // Objeto con dedicatorias predefinidas y sus claves cortas
-    const dedicatorias = {
-      abc123: {
-        to: "Alguien",
-        from: "Cele",
-        message: "Te quiero un montón, sos increíble en todo lo que hacés."
-      },
-      xyz789: {
-        to: "Conejo Olimpico",
-        from: "Tu fan",
-        message: "Sos un crack en matemáticas y me inspirás cada día."
-      }
-    };
+  <div id="feedbackMsg" role="alert" aria-live="assertive"></div>
 
-    // Función para obtener parámetro 'd' de la URL
-    function getDedicationKey() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('d');
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script>
+    // Genera un ID corto random (6 chars alfanum)
+    function generateId() {
+      return Math.random().toString(36).substring(2, 8);
     }
 
-    // Función para mostrar dedicatoria en pantalla
-    function showDedication(data) {
-      const output = document.getElementById('output');
-      const qrContainer = document.getElementById('qrContainer');
-      const form = document.getElementById('dedicationForm');
-      form.style.display = 'none';
-      output.style.display = 'block';
-      qrContainer.style.display = 'flex';
+    function escapeHTML(text) {
+      const p = document.createElement('p');
+      p.textContent = text;
+      return p.innerHTML;
+    }
 
-      output.innerHTML = `
-        <p><strong>Para:</strong> ${data.to}</p>
-        <p><strong>De:</strong> ${data.from}</p>
-        <p>${data.message}</p>
+    // Guardamos dedicatoria en localStorage (simulando DB local)
+    function saveDedication(data) {
+      const id = generateId();
+      const saved = JSON.parse(localStorage.getItem('dedications') || '{}');
+      saved[id] = data;
+      localStorage.setItem('dedications', JSON.stringify(saved));
+      return id;
+    }
+
+    // Cargar dedicatoria por ID
+    function loadDedication(id) {
+      const saved = JSON.parse(localStorage.getItem('dedications') || '{}');
+      return saved[id];
+    }
+
+    const form = document.getElementById('dedicationForm');
+    const output = document.getElementById('output');
+    const link = document.getElementById('link');
+    const qrContainer = document.getElementById('qr');
+    const feedbackMsg = document.getElementById('feedbackMsg');
+
+    // Mostrar feedback temporal
+    function showFeedback(msg) {
+      feedbackMsg.textContent = msg;
+      feedbackMsg.classList.add('show');
+      setTimeout(() => feedbackMsg.classList.remove('show'), 2500);
+    }
+
+    // Al enviar el formulario
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const to = form.to.value.trim();
+      const message = form.message.value.trim();
+      const from = form.from.value.trim();
+
+      if (!message) {
+        alert('Por favor, escribe un mensaje.');
+        return;
+      }
+
+      const data = { to, message, from };
+      const id = saveDedication(data);
+
+      // URL corto con ?id=xxx
+      const url = `${window.location.origin}${window.location.pathname}?id=${id}`;
+
+      // Mostrar link
+      link.href = url;
+      link.textContent = url;
+
+      // Generar QR con URL corto
+      qrContainer.innerHTML = '';
+      QRCode.toCanvas(url, { width: 160 }, function (error, canvas) {
+        if (error) {
+          console.error(error);
+          qrContainer.textContent = 'Error generando QR';
+          return;
+        }
+        qrContainer.appendChild(canvas);
+
+        // Agregar el gato animado al lado del QR
+        const gato = document.createElement('div');
+        gato.className = 'qr-gato';
+        qrContainer.appendChild(gato);
+      });
+
+      output.style.display = 'block';
+
+      showFeedback('¡Tu dedicatoria está lista! 🎉');
+    });
+
+    // Mostrar dedicatoria en pantalla si se abre con ?id=...
+    function showDedicationFromId(id) {
+      const data = loadDedication(id);
+      if (!data) return false;
+
+      const container = document.createElement('div');
+      container.className = 'dedication-container';
+
+      let title = 'Dedicatoria';
+      if (data.to) title = `Para ${escapeHTML(data.to)}`;
+
+      container.innerHTML = `
+        <h1>${title}</h1>
+        <div class="message">${escapeHTML(data.message)}</div>
+        <div class="signature">${data.from ? '- ' + escapeHTML(data.from) : ''}</div>
       `;
 
-      // Generar link corto para compartir (ejemplo: https://tusitio.com/?d=clave)
-      const url = `${window.location.origin}${window.location.pathname}?d=${encodeURIComponent(data.key)}`;
-
-      // Mostrar link para compartir
-      const linkEl = document.createElement('a');
-      linkEl.href = url;
-      linkEl.textContent = url;
-      output.appendChild(document.createElement('br'));
-      output.appendChild(document.createTextNode('Compartí tu dedicatoria: '));
-      output.appendChild(linkEl);
-
-      // Mostrar QR (generado con Google Chart API)
-      const qrCodeDiv = document.getElementById('qrCode');
-      qrCodeDiv.innerHTML = ''; // limpiar antes
-      const qrImg = document.createElement('img');
-      const qrURL = `https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl=${encodeURIComponent(url)}`;
-      qrImg.src = qrURL;
-      qrImg.alt = "QR de la dedicatoria";
-      qrImg.style.width = "150px";
-      qrImg.style.height = "150px";
-      qrCodeDiv.appendChild(qrImg);
-
-      // Easter egg si viene de 'cele'
-      if (data.from.toLowerCase().includes('cele')) {
+      // Solo si la firma contiene "cele" mostrar el logo cele en bottom right
+      if (data.from && data.from.toLowerCase().includes('cele')) {
         const logo = document.createElement('a');
-        logo.href = "https://www.instagram.com/dice.cele_sketch/";
+        logo.href = "https://www.instagram.com/cele/";
         logo.target = "_blank";
         logo.rel = "noopener noreferrer";
         logo.className = 'cele-easteregg';
-        logo.setAttribute('aria-label', 'Instagram de Cele');
+        logo.setAttribute('aria-label', 'Ir al Instagram de Cele');
         const img = document.createElement('img');
         img.src = 'cele.png';
         img.alt = 'Logo de Cele';
         img.style.width = '100%';
         img.style.height = 'auto';
         logo.appendChild(img);
-        document.body.appendChild(logo);
+        container.appendChild(logo);
       }
+
+      // Limpiar todo y mostrar solo la dedicatoria
+      document.body.innerHTML = '';
+      document.body.appendChild(container);
+
+      // Botón para volver atrás (recarga la página)
+      const back = document.createElement('a');
+      back.href = window.location.origin + window.location.pathname;
+      back.textContent = '← Volver';
+      back.className = 'back-link';
+      back.setAttribute('aria-label', 'Volver a crear dedicatoria');
+      container.appendChild(back);
+
+      return true;
     }
 
-    // Al cargar, chequear si hay dedicatoria por URL
-    window.addEventListener('DOMContentLoaded', () => {
-      const key = getDedicationKey();
-      if (key && dedicatorias[key]) {
-        // Añadimos la key al objeto para el link
-        dedicatorias[key].key = key;
-        showDedication(dedicatorias[key]);
+    // Al cargar la página
+    window.addEventListener('load', () => {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (id) {
+        const shown = showDedicationFromId(id);
+        if (!shown) {
+          alert('Dedicatoria no encontrada o ha expirado.');
+          window.history.replaceState({}, '', window.location.pathname);
+        }
       }
-    });
-
-    // Manejar formulario para crear nueva dedicatoria con link corto simulado
-    document.getElementById('dedicationForm').addEventListener('submit', e => {
-      e.preventDefault();
-
-      const to = document.getElementById('toInput').value.trim();
-      const from = document.getElementById('fromInput').value.trim();
-      const message = document.getElementById('messageInput').value.trim();
-
-      if (!to || !from || !message) {
-        alert('Por favor, completa todos los campos.');
-        return;
-      }
-
-      // Generar clave corta random (6 caracteres alfanuméricos)
-      const key = Math.random().toString(36).substring(2, 8);
-
-      const data = { to, from, message, key };
-
-      // Guardar en dedicatorias para que pueda cargar con link (en app real, esto sería backend)
-      dedicatorias[key] = data;
-
-      showDedication(data);
-
-      // Limpiar formulario (opcional)
-      e.target.reset();
     });
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
 
 
