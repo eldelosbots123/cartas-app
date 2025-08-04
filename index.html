@@ -167,14 +167,15 @@
     .back-link:hover, .back-link:focus {
       text-decoration: underline;
     }
-    /* Easter egg style: logo fijo abajo a la derecha */
+    /* Easter egg logo cele solo en la dedicatoria cuando la firma incluye 'cele' */
     .cele-easteregg {
-      position: fixed;
-      bottom: 16px;
-      right: 16px;
-      width: 90px;
-      cursor: pointer;
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      width: 60px;
+      height: 60px;
       animation: gatoBailoteo 4s ease-in-out infinite;
+      cursor: pointer;
       transition: transform 0.3s ease;
       z-index: 9999;
     }
@@ -227,11 +228,6 @@
       .output {
         font-size: 1rem;
         padding: 1rem 1.5rem;
-      }
-      .cele-easteregg {
-        width: 70px;
-        bottom: 12px;
-        right: 12px;
       }
       .qr-gato {
         width: 30px;
@@ -293,89 +289,58 @@
     const qrContainer = document.getElementById('qr');
     const feedbackMsg = document.getElementById('feedbackMsg');
 
-    // Easter egg: mostrar o quitar logo cele
-    function manageCeleEasterEgg(fromText) {
-      const lower = fromText.toLowerCase();
-      let existingLogo = document.querySelector('.cele-easteregg');
-      if (lower.includes('cele')) {
-        if (!existingLogo) {
-          const logo = document.createElement('a');
-          logo.href = "https://www.instagram.com/cele/";
-          logo.target = "_blank";
-          logo.rel = "noopener noreferrer";
-          logo.className = 'cele-easteregg';
-          logo.setAttribute('aria-label', 'Ir al Instagram de Cele');
-          logo.tabIndex = 0;
-          const img = document.createElement('img');
-          img.src = 'cele.png';
-          img.alt = 'Logo de Cele';
-          img.style.width = '100%';
-          img.style.height = 'auto';
-          logo.appendChild(img);
-          document.body.appendChild(logo);
-        }
-      } else {
-        if (existingLogo) {
-          existingLogo.remove();
-        }
-      }
-    }
-
+    // Mostrar feedback temporal
     function showFeedback(msg) {
       feedbackMsg.textContent = msg;
       feedbackMsg.classList.add('show');
-      setTimeout(() => {
-        feedbackMsg.classList.remove('show');
-      }, 4000);
+      setTimeout(() => feedbackMsg.classList.remove('show'), 2500);
     }
 
-    // Generar QR personalizado con gatito al lado
-    function generateCustomQR(url, container) {
-      container.innerHTML = ''; // limpio container
-
-      const canvas = document.createElement('canvas');
-      QRCode.toCanvas(canvas, url, { width: 140, margin: 1 }, function (error) {
-        if (error) console.error(error);
-      });
-
-      container.appendChild(canvas);
-
-      // Agregar gatito al lado del QR (ya está en CSS)
-      const cat = document.createElement('div');
-      cat.classList.add('qr-gato');
-      container.appendChild(cat);
-    }
-
-    form.addEventListener('submit', e => {
+    // Al enviar el formulario
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const data = {
-        to: form.to.value.trim(),
-        message: form.message.value.trim(),
-        from: form.from.value.trim()
-      };
+      const to = form.to.value.trim();
+      const message = form.message.value.trim();
+      const from = form.from.value.trim();
 
-      if (!data.message) {
-        alert('Por favor, escribe tu mensaje.');
+      if (!message) {
+        alert('Por favor, escribe un mensaje.');
         return;
       }
 
+      const data = { to, message, from };
       const id = saveDedication(data);
+
+      // URL corto con ?id=xxx
       const url = `${window.location.origin}${window.location.pathname}?id=${id}`;
 
+      // Mostrar link
       link.href = url;
       link.textContent = url;
 
-      generateCustomQR(url, qrContainer);
+      // Generar QR con URL corto
+      qrContainer.innerHTML = '';
+      QRCode.toCanvas(url, { width: 160 }, function (error, canvas) {
+        if (error) {
+          console.error(error);
+          qrContainer.textContent = 'Error generando QR';
+          return;
+        }
+        qrContainer.appendChild(canvas);
+
+        // Agregar el gato animado al lado del QR
+        const gato = document.createElement('div');
+        gato.className = 'qr-gato';
+        qrContainer.appendChild(gato);
+      });
 
       output.style.display = 'block';
-
-      manageCeleEasterEgg(data.from);
 
       showFeedback('¡Tu dedicatoria está lista! 🎉');
     });
 
-    // Al cargar, si hay ?id=..., mostrar dedicatoria
+    // Mostrar dedicatoria en pantalla si se abre con ?id=...
     function showDedicationFromId(id) {
       const data = loadDedication(id);
       if (!data) return false;
@@ -384,7 +349,6 @@
       container.className = 'dedication-container';
 
       let title = 'Dedicatoria';
-
       if (data.to) title = `Para ${escapeHTML(data.to)}`;
 
       container.innerHTML = `
@@ -393,19 +357,13 @@
         <div class="signature">${data.from ? '- ' + escapeHTML(data.from) : ''}</div>
       `;
 
-      // Easter egg en dedicatoria si firma contiene 'cele', mostrar logo abajo derecha dentro de dedicatoria
-      if (data.from.toLowerCase().includes('cele')) {
+      // Solo si la firma contiene "cele" mostrar el logo cele en bottom right
+      if (data.from && data.from.toLowerCase().includes('cele')) {
         const logo = document.createElement('a');
         logo.href = "https://www.instagram.com/cele/";
         logo.target = "_blank";
         logo.rel = "noopener noreferrer";
         logo.className = 'cele-easteregg';
-        logo.style.position = 'absolute';
-        logo.style.bottom = '12px';
-        logo.style.right = '12px';
-        logo.style.width = '60px';
-        logo.style.height = '60px';
-        logo.style.animation = 'gatoBailoteo 4s ease-in-out infinite';
         logo.setAttribute('aria-label', 'Ir al Instagram de Cele');
         const img = document.createElement('img');
         img.src = 'cele.png';
@@ -416,11 +374,11 @@
         container.appendChild(logo);
       }
 
-      // Limpiar página y mostrar solo dedicatoria
+      // Limpiar todo y mostrar solo la dedicatoria
       document.body.innerHTML = '';
       document.body.appendChild(container);
 
-      // Link para volver atrás (recargar página)
+      // Botón para volver atrás (recarga la página)
       const back = document.createElement('a');
       back.href = window.location.origin + window.location.pathname;
       back.textContent = '← Volver';
@@ -431,7 +389,7 @@
       return true;
     }
 
-    // Al cargar
+    // Al cargar la página
     window.addEventListener('load', () => {
       const params = new URLSearchParams(window.location.search);
       const id = params.get('id');
@@ -446,8 +404,6 @@
   </script>
 </body>
 </html>
-
-
 
 
 
