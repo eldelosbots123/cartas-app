@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MagicNotes💖</title>
+  <link rel="icon" href="icono.ico" type="image/ico" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    @keyframes gradientShift {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+    @keyframes float {
+      0% {transform: translateY(0);}
+      50% {transform: translateY(-8px);}
+      100% {transform: translateY(0);}
+    }
+    @keyframes fadeInUp {
+      0% {opacity: 0; transform: translateY(20px);}
+      100% {opacity: 1; transform: translateY(0);}
+    }
+    @keyframes fadeInScale {
+      0% {opacity: 0; transform: scale(0.85);}
+      100% {opacity: 1; transform: scale(1);}
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(270deg, #fceaff, #f0d9ff, #c7a0ff, #f0d9ff);
+      background-size: 800% 800%;
+      animation: gradientShift 25s ease infinite;
+      color: #6a046d;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, .95);
+      padding: 40px 50px;
+      border-radius: 32px;
+      box-shadow: 0 12px 40px rgba(106, 4, 109, .3);
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 32px;
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #51035b;
+      text-shadow: 1px 1px 5px #d1a6e2;
+      cursor: pointer;
+      transition: .3s;
+    }
+
+    h1:hover {
+      color: #9307af;
+      text-shadow: 2px 2px 10px #b569f0;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin: 20px 0 8px;
+      color: #5b066a;
+      font-weight: 600;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 18px 22px;
+      border-radius: 20px;
+      border: 2.5px solid #d1b3d9;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #4b0c57;
+      background: #fff;
+      transition: .3s;
+      box-sizing: border-box;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #9307af;
+      background: #f7e9ff;
+    }
+
+    textarea {
+      height: 120px;
+      resize: none;
+    }
+
+    button {
+      margin-top: 24px;
+      width: 100%;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(45deg, #6a046d, #9307af);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(147, 7, 175, .5);
+      transition: .3s;
+    }
+
+    button:hover {
+      background: linear-gradient(45deg, #9307af, #b551f0);
+      box-shadow: 0 10px 30px rgba(181, 81, 240, .7);
+    }
+
+    #resultContainer {
+      margin-top: 30px;
+      display: none;
+      animation: fadeInUp .8s ease forwards;
+    }
+
+    #qrcode {
+      margin: 0 auto 26px;
+      width: 180px;
+      height: 180px;
+      filter: drop-shadow(0 0 6px #6a046d);
+    }
+
+    #linkField {
+      background: #f9e7ff;
+      border-radius: 24px;
+      padding: 18px 26px;
+      font-size: 1.1rem;
+      word-break: break-word;
+      user-select: all;
+      box-shadow: inset 0 0 16px #d3a7f6;
+      font-weight: 700;
+      color: #51035b;
+    }
+
+    #copyBtn {
+      margin-top: 18px;
+      background: #9307af;
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 24px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 22px rgba(147, 7, 175, .6);
+      transition: .3s;
+    }
+
+    #copyBtn:hover {
+      background: #b551f0;
+    }
+
+    #dedicatoria {
+      background: #fff;
+      padding: 40px 45px;
+      border-radius: 36px;
+      box-shadow: 0 0 38px #c183e6;
+      max-width: 480px;
+      margin-top: 20px;
+      text-align: center;
+      display: none;
+      animation: fadeInScale .8s ease forwards;
+    }
+
+    #dedicatoria h2 {
+      font-size: 2rem;
+      margin-bottom: 26px;
+      color: #51035b;
+    }
+
+    #dedicatoria p {
+      font-size: 1.4rem;
+      white-space: pre-wrap;
+      font-weight: 600;
+      color: #4b0c57;
+    }
+
+    #corazonDanna {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      font-size: 3rem;
+      cursor: pointer;
+      animation: float 2s ease-in-out infinite;
+      z-index: 9999;
+      display: none;
+    }
+
+    #celeEgg {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 100px;
+      cursor: pointer;
+      animation: float 2s ease-in-out infinite;
+      z-index: 9999;
+      display: none;
+    }
+
+    @media(max-width:480px){
+      .container {padding: 32px 26px;}
+      h1 {font-size: 1.9rem;}
+      button {font-size: 1.1rem;}
+      #dedicatoria {max-width: 90vw; padding: 30px 25px;}
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container" id="formContainer">
+    <h1>Envía una dedicatoria secreta 💌</h1>
+    <form id="formDedicatoria">
+      <label for="destinatario">Para:</label>
+      <input type="text" id="destinatario" placeholder="Nombre del destinatario" required />
+      
+      <label for="mensaje">Tu dedicatoria:</label>
+      <textarea id="mensaje" placeholder="Escribe tu mensaje aquí..." required></textarea>
+      
+      <label for="firma">Firma:</label>
+      <input type="text" id="firma" placeholder="Tu nombre o alias" required />
+
+      <button type="submit">Crear dedicatoria</button>
+    </form>
+
+    <div id="resultContainer">
+      <canvas id="qrcode"></canvas>
+      <div id="linkField"></div>
+      <button id="copyBtn">Copiar link</button>
+    </div>
+
+    <div id="fabriLink">
+      Hecho con 💜 por <a href="https://www.instagram.com/fabri.rnd/" target="_blank">fabri.rnd</a>
+    </div>
+  </div>
+
+  <div id="dedicatoria">
+    <h2>Dedicatoria para <span id="nombreDestinatario"></span></h2>
+    <p id="textoDedicatoria"></p>
+  </div>
+
+  <img src="cele.png" id="celeEgg" alt="Cele Sketch" />
+  <div id="corazonDanna" title="Para Danna 💜">💜</div>
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- Librerías externas -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    function b64e(s) { return btoa(unescape(encodeURIComponent(s))); }
+    function b64d(s) { return decodeURIComponent(escape(atob(s))); }
+
+    const form = document.getElementById('formDedicatoria');
+    const dest = document.getElementById('destinatario');
+    const msg = document.getElementById('mensaje');
+    const firma = document.getElementById('firma');
+    const qr = document.getElementById('qrcode');
+    const lf = document.getElementById('linkField');
+    const rc = document.getElementById('resultContainer');
+    const cb = document.getElementById('copyBtn');
+    const ded = document.getElementById('dedicatoria');
+    const nd = document.getElementById('nombreDestinatario');
+    const td = document.getElementById('textoDedicatoria');
+    const ce = document.getElementById('celeEgg');
+    const heart = document.getElementById('corazonDanna');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const d = b64e(dest.value.trim());
+      const m = b64e(msg.value.trim());
+      const f = b64e(firma.value.trim());
+
+      const url = `${location.origin}${location.pathname}?d=${d}&m=${m}&f=${f}`;
+      QRCode.toCanvas(qr, url, { width: 180, margin: 2 }, err => {
+        if (err) return alert("Error generando QR");
+        lf.textContent = url;
+        rc.style.display = 'block';
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      });
+    });
+
+    cb.addEventListener('click', () => {
+      navigator.clipboard.writeText(lf.textContent);
+      cb.textContent = "¡Copiado!";
+      setTimeout(() => cb.textContent = "Copiar link", 2000);
+    });
+
+    function activateDanna() {
+      heart.style.display = 'block';
+      heart.onclick = () => alert("Danna, te quiero mucho 💜");
+    }
+
+    function checkEgg(text) {
+      const t = text.toLowerCase();
+      if (t.includes("-cele paso por aca")) {
+        ce.style.display = 'block';
+        ce.onclick = () => window.open("https://www.instagram.com/dice.cele_sketch/", "_blank");
+      }
+      if (t.includes("-danna gracias a ella hice esto :3")) {
+        activateDanna();
+      }
+    }
+
+    function showDed() {
+      const p = new URLSearchParams(location.search);
+      const d = p.get('d'), m = p.get('m'), f = p.get('f');
+      if (d && m) {
+        nd.textContent = b64d(d);
+        let mensaje = b64d(m);
+        if (f) {
+          mensaje += `\n\nCon cariño,\n${b64d(f)}`;
+        }
+        td.textContent = mensaje;
+        ded.style.display = 'block';
+        document.getElementById('formContainer').style.display = 'none';
+        checkEgg(mensaje);
+      }
+    }
+
+    showDed();
+  </script>
+</body>
+</html>
