@@ -1,2 +1,2 @@
-# cartas-app
-love
+# MagicNotes
+Beta 1
